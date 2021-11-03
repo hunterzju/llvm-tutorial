@@ -1,4 +1,5 @@
 # Kaleidoscope: Kaleidoscope Introduction and the Lexer
+
 ## The Kaleidoscope Language
 
 This tutorial is illustrated with a toy language called \"[Kaleidoscope](http://en.wikipedia.org/wiki/Kaleidoscope)\" (derived from \"meaning beautiful, form, and view\"). Kaleidoscope is a procedural language that allows you to define functions, use conditionals, math, etc. Over the course of the tutorial, we\'ll extend Kaleidoscope to support the if/then/else construct, a for loop, user defined operators, JIT compilation with a simple command line interface, debug info, etc.
@@ -27,7 +28,7 @@ We also allow Kaleidoscope to call into standard library functions - the LLVM JI
     atan2(sin(.4), cos(42))
 ```
 
-A more interesting example is included in Chapter 6 where we write a little Kaleidoscope application that [displays a Mandelbrot Set](LangImpl06.html#kicking-the-tires) at various levels of magnification.
+A more interesting example is included in Chapter 6 where we write a little Kaleidoscope application that [displays a Mandelbrot Set](LangImpl06.md#kicking-the-tires) at various levels of magnification.
 
 Let\'s dive into the implementation of this language!
 
@@ -129,6 +130,6 @@ return ThisChar;
 }
 ```
 
-With this, we have the complete lexer for the basic Kaleidoscope language (the [full code listing](LangImpl02.html#full-code-listing) for the Lexer is available in the [next chapter](LangImpl02.html) of the tutorial). Next we\'ll [build a simple parser that uses this to build an Abstract Syntax Tree](LangImpl02.html). When we have that, we\'ll include a driver so that you can use the lexer and parser together.
+With this, we have the complete lexer for the basic Kaleidoscope language (the [full code listing](LangImpl02.md#full-code-listing) for the Lexer is available in the [next chapter](LangImpl02.md) of the tutorial). Next we\'ll [build a simple parser that uses this to build an Abstract Syntax Tree](LangImpl02.md). When we have that, we\'ll include a driver so that you can use the lexer and parser together.
 
-[Next: Implementing a Parser and AST](LangImpl02.html)
+[Next: Implementing a Parser and AST](LangImpl02.md)
