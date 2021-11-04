@@ -1,10 +1,10 @@
-# 万花筒望远镜：万花筒内向与利器
+# Kaleidoscope望远镜：Kaleidoscope内向与利器
 
-## 万花筒语言
+## Kaleidoscope语言
 
-本教程使用一种名为\“[Kaleidoscope](http://en.wikipedia.org/wiki/Kaleidoscope)\”的玩具语言进行说明(派生自\“表示漂亮、形式和视图\”)。万花筒是一种过程性语言，允许您定义函数、使用条件、数学等。在本教程中，我们将扩展万花筒以支持IF/THEN/ELSE结构、for循环、用户定义的运算符、具有简单命令行界面的JIT编译、调试信息等。
+本教程使用一种名为\“[Kaleidoscope](http://en.wikipedia.org/wiki/Kaleidoscope)\”的玩具语言进行说明(派生自\“表示漂亮、形式和视图\”)。Kaleidoscope是一种过程性语言，允许您定义函数、使用条件、数学等。在本教程中，我们将扩展Kaleidoscope以支持IF/THEN/ELSE结构、for循环、用户定义的运算符、具有简单命令行界面的JIT编译、调试信息等。
 
-我们希望保持简单，因此万花筒中唯一的数据类型是64位浮点类型(在C语言中也称为“双精度”)。因此，所有值都是隐式双精度的，并且该语言不需要类型声明。这为该语言提供了一种非常好和简单的语法。例如，下面的简单示例计算[斐波那契numbers：](http://en.wikipedia.org/wiki/Fibonacci_number)
+我们希望保持简单，因此Kaleidoscope中唯一的数据类型是64位浮点类型(在C语言中也称为“双精度”)。因此，所有值都是隐式双精度的，并且该语言不需要类型声明。这为该语言提供了一种非常好和简单的语法。例如，下面的简单示例计算[斐波那契numbers：](http://en.wikipedia.org/wiki/Fibonacci_number)
 
 ```
     # Compute the x'th fibonacci number.
@@ -18,7 +18,7 @@
     fib(40)
 ```
 
-我们还允许万花筒调用标准库函数-LLVM JIT使这一点变得非常容易。这意味着您可以在使用函数之前使用\‘extern\’关键字来定义该函数(这对于相互递归的函数也很有用)。例如：
+我们还允许Kaleidoscope调用标准库函数-LLVM JIT使这一点变得非常容易。这意味着您可以在使用函数之前使用\‘extern\’关键字来定义该函数(这对于相互递归的函数也很有用)。例如：
 
 ```
     extern sin(arg);
@@ -28,7 +28,7 @@
     atan2(sin(.4), cos(42))
 ```
 
-第6章包括了一个更有趣的例子，在那里我们编写了一个小的万花筒应用程序，它以不同的放大倍数[显示一个Mandelbrot集](LangImpl06.md#Kick-the-the Tires)。
+第6章包括了一个更有趣的例子，在那里我们编写了一个小的Kaleidoscope应用程序，它以不同的放大倍数[显示一个Mandelbrot集](LangImpl06.md#Kick-the-the Tires)。
 
 让我们深入研究一下这种语言的实现！
 
@@ -71,7 +71,7 @@ static int gettok() {
 
 `gettok`的工作原理是调用C`getchar()`函数从标准输入中一次读取一个字符。它在识别它们时会将其吃掉，并将最后读取但未处理的字符存储在LastChar中。它必须做的第一件事是忽略标记之间的空格。这是通过上面的循环实现的。
 
-`gettok`需要做的下一件事是识别标识符和特定的关键字，如\“def\”。万花筒用这个简单的循环来做这件事：
+`gettok`需要做的下一件事是识别标识符和特定的关键字，如\“def\”。Kaleidoscope用这个简单的循环来做这件事：
 
 ```c++
 if (isalpha(LastChar)) { // identifier: [a-zA-Z][a-zA-Z0-9]*
@@ -130,6 +130,6 @@ return ThisChar;
 }
 ```
 
-这样，我们就有了基本万花筒语言的完整词法分析器(本教程的[下一章](LangImpl02.md)中提供了词法分析器的[完整代码清单](LangImpl02.md#Full-code-Listing))。接下来，我们将[构建一个简单的解析器，使用它来构建抽象语法树](LangImpl02.md)。当我们完成后，我们将包含一个驱动程序，以便您可以同时使用词法分析器和解析器。
+这样，我们就有了基本Kaleidoscope语言的完整词法分析器(本教程的[下一章](LangImpl02.md)中提供了词法分析器的[完整代码清单](LangImpl02.md#Full-code-Listing))。接下来，我们将[构建一个简单的解析器，使用它来构建抽象语法树](LangImpl02.md)。当我们完成后，我们将包含一个驱动程序，以便您可以同时使用词法分析器和解析器。
 
 [下一步：实现解析器和AST](LangImpl02.md)
