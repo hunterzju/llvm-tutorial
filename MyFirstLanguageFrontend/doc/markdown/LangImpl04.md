@@ -57,7 +57,7 @@ Unfortunately, no amount of local analysis will be able to detect and correct th
 
 ## LLVM Optimization Passes
 
-> Warning: Due to the transition to the new PassManager infrastructure thistutorial is based on `llvm::legacy::FunctionPassManager` which can befound in[LegacyPassManager.h](https://llvm.org/doxygen/classllvm_1_1legacy_1_1FunctionPassManager.html).For the purpose of the this tutorial the above should be used until thepass manager transition is complete.
+> Warning: Due to the transition to the new PassManager infrastructure this tutorial is based on `llvm::legacy::FunctionPassManager` which can befound in[LegacyPassManager.h](https://llvm.org/doxygen/classllvm_1_1legacy_1_1FunctionPassManager.html).For the purpose of the this tutorial the above should be used until the pass manager transition is complete.
 
 LLVM provides many optimization passes, which do many different sorts of things and have different tradeoffs. Unlike other systems, LLVM doesn\'t hold to the mistaken notion that one set of optimizations is right for all languages and for all situations. LLVM allows a compiler implementor to make complete decisions about what optimizations to use, in which order, and in what situation.
 

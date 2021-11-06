@@ -108,8 +108,7 @@ auto Result = std::make_unique<BinaryExprAST>('+', std::move(LHS),
                                               std::move(RHS));
 ```
 
-In order to do this, we\'ll start by defining some basic helper
-routines:
+In order to do this, we\'ll start by defining some basic helper routines:
 
 ``` c++
 /// CurTok/getNextToken - Provide a simple token buffer.  CurTok is the current

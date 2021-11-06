@@ -302,10 +302,6 @@ This shows some function calls. Note that this function will take a long time to
 
 This shows an extern for the libm \"cos\" function, and a call to it.
 
-todo:
-Abandon Pygments\' horrible [llvm]{.title-ref} lexer. It just totally
-gives up on highlighting this due to the first line.
-
 ```
     ready> ^D
     ; ModuleID = 'my cool jit'
