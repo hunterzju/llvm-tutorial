@@ -92,7 +92,7 @@ void InitializeModuleAndPassManager(void) {
 
 在本例中，我们选择添加四个优化过程。我们在这里选择的通道是一组非常标准的“清理”优化，对各种代码都很有用。我不会深入研究他们做了什么，但相信我，他们是一个很好的起点：)。
 
-一旦设置了PassManager，我们就需要使用它。我们在构造新创建的函数之后(在`FunctionAST：：codegen()`中)，在返回给客户端之前运行：
+一旦设置了PassManager，我们就需要使用它。我们在构造新创建的函数之后(在`FunctionAST::codegen()`中)，在返回给客户端之前运行：
 
 ```c++
 if (Value *RetVal = Body->codegen()) {
@@ -124,7 +124,7 @@ if (Value *RetVal = Body->codegen()) {
 
 不出所料，我们现在得到了经过良好优化的代码，每次执行此函数时都会保存一条浮点加法指令。
 
-LLVM提供了可在某些情况下使用的各种优化。虽然有一些[各种通道的文档](../../Passes.md)，但不是很完整。另一个很好的想法来源是查看`Clang`开始运行的通道。“`opt`”工具允许您从命令行尝试通道，这样您就可以看到它们是否有什么作用。
+LLVM提供了可在某些情况下使用的各种优化。虽然有一些[各种pass的文档](https://llvm.org/docs/Passes.html)，但不是很完整。另一个很好的想法来源是查看`Clang`开始运行的pass来学习pass。“`opt`”工具允许您从命令行尝试pass，这样您就可以看到它们是否有什么作用。
 
 现在我们有了来自前端的合理代码，让我们来讨论一下如何执行它！
 
@@ -132,7 +132,7 @@ LLVM提供了可在某些情况下使用的各种优化。虽然有一些[各种
 
 LLVM IR中提供的代码可以应用多种工具。例如，您可以对其运行优化(如上所述)，可以将其转储为文本或二进制形式，可以将代码编译为某个目标的汇编文件(.s)，也可以对其进行JIT编译。LLVM IR表示的好处是它是编译器许多不同部分之间的“通用货币”。
 
-在本节中，我们将在我们的解释器中添加JIT编译器支持。我们希望Kaleidoscope的基本思想是让用户像现在一样输入函数体，但立即计算他们键入的顶级表达式。例如，如果他们键入“1+2；”，我们应该计算并打印出3。如果他们定义了函数，他们应该能够从命令行调用该函数。(=
+在本节中，我们将在我们的解释器中添加JIT编译器支持。我们希望Kaleidoscope的基本思想是让用户像现在一样输入函数体，但立即计算他们键入的顶层表达式。例如，如果他们键入“1+2；”，我们应该计算并打印出3。如果他们定义了函数，他们应该能够从命令行调用该函数。
 
 为此，我们首先准备环境为当前本机目标创建代码，并声明和初始化JIT。方法是调用一些`InitializeNativeTarget\*`函数，添加一个全局变量`TheJIT`，在`main`中初始化：
 
@@ -177,7 +177,7 @@ void InitializeModuleAndPassManager(void) {
   ...
 ```
 
-KaleidoscopeJIT类是专门为这些教程构建的简单JIT类，可在llvm-src/examples/Kaleidoscope/include/KaleidoscopeJIT.h.的LLVM源代码中找到在后面的章节中，我们将看看它是如何工作的，并用新功能对其进行扩展，但现在我们将把它当作给定的。它的接口非常简单：`addModule`将LLVM IR模块添加到JIT中，使其函数可供执行；`removeModule`移除模块，释放与该模块中的代码关联的所有内存；`findSymbol`允许我们查找指向编译后代码的指针。
+KaleidoscopeJIT类是专门为这些教程构建的简单JIT类，可在llvm-src/examples/Kaleidoscope/include/KaleidoscopeJIT.h.的LLVM源代码中找到。在后面的章节中，我们将看看它是如何工作的，并用新功能对其进行扩展，但现在我们将把它当作给定的。它的接口非常简单：`addModule`将LLVM IR模块添加到JIT中，使其函数可供执行；`removeModule`移除模块，释放与该模块中的代码关联的所有内存；`findSymbol`允许我们查找指向编译后代码的指针。
 
 我们可以使用这个简单的API，并将解析顶级表达式的代码更改为如下所示：
 
@@ -208,9 +208,9 @@ static void HandleTopLevelExpression() {
 
 如果解析和编码生成成功，则下一步是将包含顶级表达式的模块添加到JIT。我们通过调用addModule来实现这一点，addModule触发模块中所有函数的代码生成，并返回一个句柄，该句柄可用于稍后从JIT中删除模块。模块一旦添加到JIT中就不能再修改，所以我们还会通过调用`InitializeModuleAndPassManager()`打开一个新模块来存放后续代码。
 
-将模块添加到JIT后，我们需要获取指向最终生成的代码的指针。为此，我们调用JIT的findSymbol方法，并传递顶级表达式函数的名称：`__anon_expr`。由于我们刚刚添加了此函数，因此我们断言findSymbol返回了一个结果。
+将模块添加到JIT后，我们需要获取指向最终生成的代码的指针。为此，我们调用JIT的findSymbol方法，并传递顶层表达式函数的名称：`__anon_expr`。由于我们刚刚添加了此函数，因此我们断言findSymbol返回了一个结果。
 
-接下来，我们通过对符号调用`getAddress()`来获取`__anon_expr`函数的内存地址。回想一下，我们将顶级表达式编译成一个不带参数并返回计算出的双精度值的自包含LLVM函数。因为LLVM JIT编译器匹配本机平台ABI，这意味着您只需将结果指针转换为该类型的函数指针并直接调用它。这意味着，静态链接到应用程序中的JIT编译代码和本机代码之间没有区别。
+接下来，我们通过对符号调用`getAddress()`来获取`__anon_expr`函数的内存地址。回想一下，我们将顶级表达式编译成一个不带参数并返回计算出的双精度值的自包含LLVM函数。因为LLVM JIT编译器匹配本机平台ABI，这意味着您只需将结果指针转换为该类型的函数指针并直接调用它。这意味着，JIT编译代码和静态链接到应用程序中的本机代码之间没有区别。
 
 最后，因为我们不支持顶级表达式的重新求值，所以当我们完成释放相关内存时，我们会从JIT中删除该模块。但是，回想一下，我们在前面几行创建的模块(通过`InitializeModuleAndPassManager`)仍然处于打开状态，并等待添加新代码。
 
@@ -253,11 +253,11 @@ static void HandleTopLevelExpression() {
     ready> LLVM ERROR: Program used external function 'testfunc' which could not be resolved!
 ```
 
-函数定义和调用也可以工作，但最后一行出现了非常错误的情况。电话看起来有效，发生了什么事？正如您可能从API中猜到的那样，Module是JIT的分配单元，而testfunc是包含匿名表达式的同一模块的一部分。当我们从JIT中删除该模块以释放用于匿名表达式的内存时，我们同时删除了`testfunc`的定义。然后，当我们试图第二次调用testfunc时，JIT再也找不到它了。
+函数定义和调用也可以工作，但最后一行出现了非常错误的情况。函数调用看起来有效，但是出现报错，发生了什么事？正如您可能从API中猜到的那样，Module是JIT的分配单元，而testfunc是包含匿名表达式的同一模块的一部分。当我们从JIT中删除该模块以释放用于匿名表达式的内存时，我们同时删除了`testfunc`的定义。然后，当我们试图第二次调用testfunc时，JIT再也找不到它了。
 
-解决此问题的最简单方法是将匿名表达式放在与函数定义的睡觉不同的模块中。JIT将愉快地跨模块边界解决函数调用，只要每个被调用的函数都有一个原型，并且在调用之前被添加到JIT中。通过将匿名表达式放在不同的模块中，我们可以删除它，而不会影响函数的睡觉。
+解决此问题的最简单方法是将匿名表达式放在与剩余函数定义的不同的模块中。JIT将愉快地跨模块边界解决函数调用，只要每个被调用的函数都有一个原型，并且在调用之前被添加到JIT中。通过将匿名表达式放在不同的模块中，我们可以删除它，而不会影响剩余的函数。
 
-事实上，我们将更进一步，将每个函数都放在它自己的模块中。这样做可以利用KaleidoscopeJIT的一个有用属性，这将使我们的环境更像REPL：函数可以多次添加到JIT中(不同于每个函数都必须有唯一定义的模块)。当您在KaleidoscopeJIT中查找符号时，它将始终返回最新的定义：
+事实上，我们将更进一步，将每个函数都放在它自己的模块中。这样做可以利用KaleidoscopeJIT的一个有用属性，这将使我们的环境更像REPL（Read–eval–print loop）：函数可以多次添加到JIT中(不同于每个函数都必须有唯一定义的模块)。当您在KaleidoscopeJIT中查找符号时，它将始终返回最新的定义：
 
 ```
     ready> def foo(x) x + 1;
@@ -359,8 +359,7 @@ static void HandleExtern() {
 
 在HandleDefinition中，我们添加两行代码来将新定义的函数传递给JIT并打开一个新模块。在HandleExtern中，我们只需要添加一行将原型添加到FunctionProtos。
 
-完成这些更改后，让我们再次尝试我们的REPL(这次我删除了匿名函数的转储，您现在应该明白了：)
-：
+完成这些更改后，让我们再次尝试我们的REPL(这次我删除了匿名函数的转储，您现在应该明白了)：
 ```
     ready> def foo(x) x + 1;
     ready> foo(2);
@@ -369,12 +368,13 @@ static void HandleExtern() {
     ready> def foo(x) x + 2;
     ready> foo(2);
     Evaluated to 4.000000
+```
 
-It works!
+它是有效的!
 
-Even with this simple code, we get some surprisingly powerful
-capabilities -check this out:
+即使采用了这么简单的代码，我们收获了令人惊讶的强大能力 - 来看看下面示例：
 
+```
     ready> extern sin(x);
     Read extern:
     declare double @sin(double)
@@ -415,11 +415,11 @@ capabilities -check this out:
     Evaluated to 1.000000
 ```
 
-哇，JIT怎么知道罪孽和COS的？答案出奇的简单：KaleidoscopeJIT有一个简单明了的符号解析规则，它用来查找任何给定模块中没有的符号：首先，它搜索已经添加到JIT的所有模块(从最新到最旧)，以找到最新的定义。如果在JIT中找不到定义，它将退回到在Kaleidoscope进程本身上调用“`dlsym(”sin“)`”。因为“`sin`”是在JIT的地址空间中定义的，所以它只是修补模块中的调用，直接调用`sin`的libm版本。但在某些情况下，这甚至更进一步：因为sin和cos是标准数学函数的名称，所以当使用常量调用函数时，Constant文件夹将直接计算函数调用的正确结果，就像上面的“`sin(1.0)`”一样。
+哇，JIT怎么知道SIN和COS的？答案出奇的简单：KaleidoscopeJIT有一个简单明了的符号解析规则，它用来查找任何给定模块中没有的符号：首先，它搜索已经添加到JIT的所有模块(从最新到最旧)，以找到最新的定义。如果在JIT中找不到定义，它将退回到在Kaleidoscope进程本身上调用“`dlsym(”sin“)`”。因为“`sin`”是在JIT的地址空间中定义的，所以它只是给模块中的调用打了补丁，直接调用`sin`的libm版本。但在某些情况下，这甚至会更进一步：因为sin和cos是标准数学函数的名称，所以当使用常量调用函数时，Constant folder将直接计算函数调用的正确结果，就像上面的“`sin(1.0)`”一样。
 
-在未来，我们将看到如何使用调整此符号解析规则来启用各种有用的功能，从安全性(限制可用于JIT代码的符号集)到基于符号名称的动态代码生成，甚至惰性编译。
+在未来，我们将看到调整此符号解析规则能够被用来启用各种有用的功能，从安全性(限制可用于JIT代码的符号集)到基于符号名称的动态代码生成，甚至惰性编译（lazy compilation）。
 
-符号解析规则的一个直接好处是，我们现在可以通过编写任意C++代码来实现操作来扩展语言。例如，如果我们添加：
+符号解析规则的一个直接好处是，我们现在可以通过编写任意C++代码来实现来扩展语言操作符operation。例如，如果我们添加：
 
 ```c++
 #ifdef _WIN32
@@ -437,7 +437,7 @@ extern "C" DLLEXPORT double putchard(double X) {
 
 请注意，对于Windows，我们需要实际导出函数，因为动态符号加载器将使用GetProcAddress查找符号。
 
-现在，我们可以使用以下命令向控制台生成简单的输出：“`extern putchard(X)；putchard(120)；`”，它在控制台上打印小写的\‘x\’(120是\‘x\’的ASCII代码)。类似的代码可用于在Kaleidoscope中实现文件I/O、控制台输入和许多其他功能。
+现在，我们可以使用以下命令向控制台生成简单的输出：“`extern putchard(X)；putchard(120)；`”，它在控制台上打印小写的‘x’(120是‘x’的ASCII代码)。类似的代码可用于在Kaleidoscope中实现文件I/O、控制台输入和许多其他功能。
 
 这就完成了Kaleidoscope教程的JIT和优化器一章。在这一点上，我们可以编译一种非图灵完全的编程语言，并以用户驱动的方式对其进行优化和JIT编译。接下来，我们将研究[使用控制流构造扩展语言](LangImpl05.md)，解决一些有趣的LLVM IR问题。
 
