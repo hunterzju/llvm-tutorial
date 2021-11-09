@@ -338,15 +338,13 @@ static std::unique_ptr<PrototypeAST> ParseExtern() {
 // Code Generation
 //===----------------------------------------------------------------------===//
 
-static std::unique_ptr<LLVMContext> TheContext;
+static LLVMContext TheContext;
+static IRBuilder<> Builder(TheContext);
 static std::unique_ptr<Module> TheModule;
-static std::unique_ptr<IRBuilder<>> Builder;
 static std::map<std::string, Value *> NamedValues;
-// For OPT and JIT
 static std::unique_ptr<legacy::FunctionPassManager> TheFPM;
 static std::unique_ptr<KaleidoscopeJIT> TheJIT;
 static std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
-static ExitOnError ExitOnErr;
 
 Value *LogErrorV(const char *Str) {
   LogError(Str);
@@ -365,7 +363,7 @@ Function *getFunction(std::string Name) {
 }
 
 Value *NumberExprAST::codegen() {
-  return ConstantFP::get(*TheContext, APFloat(Val));
+  return ConstantFP::get(TheContext, APFloat(Val));
 }
 
 Value *VariableExprAST::codegen() {
@@ -384,15 +382,15 @@ Value *BinaryExprAST::codegen() {
 
   switch (Op) {
   case '+':
-    return Builder->CreateFAdd(L, R, "addtmp");
+    return Builder.CreateFAdd(L, R, "addtmp");
   case '-':
-    return Builder->CreateFSub(L, R, "subtmp");
+    return Builder.CreateFSub(L, R, "subtmp");
   case '*':
-    return Builder->CreateFMul(L, R, "multmp");
+    return Builder.CreateFMul(L, R, "multmp");
   case '<':
-    L = Builder->CreateFCmpULT(L, R, "cmptmp");
+    L = Builder.CreateFCmpULT(L, R, "cmptmp");
     // Convert bool 0/1 to double 0.0 or 1.0
-    return Builder->CreateUIToFP(L, Type::getDoubleTy(*TheContext), "booltmp");
+    return Builder.CreateUIToFP(L, Type::getDoubleTy(TheContext), "booltmp");
   default:
     return LogErrorV("invalid binary operator");
   }
@@ -415,14 +413,14 @@ Value *CallExprAST::codegen() {
       return nullptr;
   }
 
-  return Builder->CreateCall(CalleeF, ArgsV, "calltmp");
+  return Builder.CreateCall(CalleeF, ArgsV, "calltmp");
 }
 
 Function *PrototypeAST::codegen() {
   // Make the function type:  double(double,double) etc.
-  std::vector<Type *> Doubles(Args.size(), Type::getDoubleTy(*TheContext));
+  std::vector<Type *> Doubles(Args.size(), Type::getDoubleTy(TheContext));
   FunctionType *FT =
-      FunctionType::get(Type::getDoubleTy(*TheContext), Doubles, false);
+      FunctionType::get(Type::getDoubleTy(TheContext), Doubles, false);
 
   Function *F =
       Function::Create(FT, Function::ExternalLinkage, Name, TheModule.get());
@@ -446,8 +444,8 @@ Function *FunctionAST::codegen() {
     return nullptr;
 
   // Create a new basic block to start insertion into.
-  BasicBlock *BB = BasicBlock::Create(*TheContext, "entry", TheFunction);
-  Builder->SetInsertPoint(BB);
+  BasicBlock *BB = BasicBlock::Create(TheContext, "entry", TheFunction);
+  Builder.SetInsertPoint(BB);
 
   // Record the function arguments in the NamedValues map.
   NamedValues.clear();
@@ -456,10 +454,12 @@ Function *FunctionAST::codegen() {
 
   if (Value *RetVal = Body->codegen()) {
     // Finish off the function.
-    Builder->CreateRet(RetVal);
+    Builder.CreateRet(RetVal);
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
+
+	TheFPM->run(*TheFunction);
 
     return TheFunction;
   }
@@ -473,11 +473,11 @@ Function *FunctionAST::codegen() {
 // Top-level parsing and JIT Driver
 
 static void InitializeModuleAndPassManager() {
-	TheContext = std::make_unique<LLVMContext>();
-	TheModule = std::make_unique<Module>("my cool jit", *TheContext);
-	TheModule->setDataLayout(TheJIT->getDataLayout());
+	// TheContext = std::make_unique<LLVMContext>();
+	TheModule = std::make_unique<Module>("my cool jit", TheContext);
+	TheModule->setDataLayout(TheJIT->getTargetMachine().createDataLayout());
 
-	Builder = std::make_unique<IRBuilder<>>(*TheContext);
+	// Builder = std::make_unique<IRBuilder<>>(*TheContext);
 
 	TheFPM = std::make_unique<legacy::FunctionPassManager>(TheModule.get());
 
@@ -495,9 +495,7 @@ static void HandleDefinition() {
 			fprintf(stderr, "Read function definition:");
 			FnIR->print(errs());
 			fprintf(stderr, "\n");
-			ExitOnError(TheJIT->addModule(
-				ThreadSafeModule(std::move(TheModule), std::move(TheContext))
-			));
+			TheJIT->addModule(std::move(TheModule));
 			InitializeModuleAndPassManager();
 		}
 	}
@@ -522,19 +520,19 @@ static void HandleExtern() {
 
 static void HanldeTopLevelExpression() {
 	if (auto FnAST = ParseTopLevelExpr()) {
-		if (auto *FnIR = FnAST->codegen()) {
-			auto RT = TheJIT->getMainJITDylib().createResouceTracker();
-			
-			auto TSM = ThreadSafeModule(std::move(TheModule), std::move(TheContext));
-			ExitOnErr(TheJIT->addModule(std::move(TSM), RT));
+		if (FnAST->codegen()) {
+			auto H = TheJIT->addModule(std::move(TheModule));
 			InitializeModuleAndPassManager();
 
-			auto ExprSymbol = ExitOnErr(TheJIT->lookup("__anon_expr"));
+			// Search the JIT for the __anon_expr symbol.
+			auto ExprSymbol = TheJIT->findSymbol("__anon_expr");
+			assert(ExprSymbol && "Function not found");
 
-			double (*FP)() = (double (*)())(intptr_t)ExprSymbol.getAddress();
-			fprintf(stderr, "Evaluated to %f]n", FP());
-			
-			ExitOnErr(RT->remove());
+			double (*FP)() = (double (*)())(intptr_t)cantFail(ExprSymbol.getAddress());
+			fprintf(stderr, "Evaluated to %f\n", FP());
+
+			// Delete the anonymous expression module from the JIT.
+			TheJIT->removeModule(H);
 		}
 	}
 	else {
