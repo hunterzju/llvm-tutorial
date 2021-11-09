@@ -2,9 +2,9 @@
 
 ## 第三章绪论
 
-欢迎阅读”[使用LLVM实现语言](index.md)”教程的第3章。本章介绍如何将第2章中构建的[抽象语法树](LangImpl02.md)转换为LLVM IR。这将教您一些关于LLVM是如何做事情的知识，并演示它的易用性。与生成LLVM IR代码相比，构建词法分析器和解析器的工作要多得多。：)
+欢迎阅读“[使用LLVM实现语言](index.md)”教程的第3章。本章介绍如何将第2章中构建的[抽象语法树](LangImpl02.md)转换为LLVM IR。这将教您一些关于LLVM是如何做事情的知识，并演示它的易用性。与生成LLVM IR代码相比，构建词法分析器和解析器的工作要多得多。：)
 
-**请注意**：本章及以后的代码需要LLVM3.7或更高版本。LLVM 3.6和更早版本将不能与其配合使用。还要注意，您需要使用与您的LLVM发行版相匹配的本教程版本：如果您使用的是正式的LLVM发行版，请使用发行版中包含的文档版本或[llvm.org发行版页面](https://llvm.org/releases/).
+**请注意**：本章及以后的代码需要LLVM3.7或更高版本。LLVM 3.6和更早版本将不能与其配合使用。还要注意，您需要使用与您的LLVM发行版相匹配的本教程版本：如果您使用的是正式的LLVM发行版，请使用发行版中包含的文档版本或在[llvm.org发行版页面](https://llvm.org/releases/)中的版本。
 
 ## 代码生成设置
 
@@ -29,11 +29,11 @@ public:
 ...
 ```
 
-codegen()方法表示为该AST节点产生IR以及它所依赖的所有内容，并且它们都返回一个LLVM值对象。Value是用来表示LLVM中的“[静态单赋值(SSA)](http://en.wikipedia.org/wiki/Static_single_assignment_form)寄存器”或“SSA值”的类。SSA值最明显的方面是，它们的值是在相关指令执行时计算的，并且直到(如果)指令重新执行时才会获得新值。换句话说，没有办法“更改”SSA值。欲了解更多信息，请阅读[静态单赋值](http://en.wikipedia.org/wiki/Static_single_assignment_form) - 一旦你摸索了概念，这些概念就真的很自然了。
+codegen()方法表示为该AST节点产生IR以及它所依赖的所有内容，并且它们都返回一个LLVM值对象。Value是用来表示LLVM中的“[静态单赋值(SSA)](http://en.wikipedia.org/wiki/Static_single_assignment_form)寄存器”或“SSA值”的类。SSA值最明显的方面是，它们的值是在相关指令执行时计算的，并且直到(如果)指令重新执行时才会获得新值。换句话说，没有办法“更改”SSA值。欲了解更多信息，请阅读[静态单赋值](http://en.wikipedia.org/wiki/Static_single_assignment_form) - 一旦你去研究，这些概念就真的很自然了。
 
-请注意，除了将虚方法添加到ExprAST类层次结构中，使用[访问者模式](http://en.wikipedia.org/wiki/Visitor_pattern)或其他方式对此进行建模也是有意义的。同样，本教程不会详述好的软件工程实践：就我们的目的而言，添加虚拟方法是最简单的。
+请注意，除了将虚方法添加到ExprAST类层次结构中，使用[访问者模式](http://en.wikipedia.org/wiki/Visitor_pattern)或其他方式对此进行建模也是有意义的。重申一下，本教程不会详述好的软件工程实践：就我们的目的而言，添加虚拟方法是最简单的。
 
-我们需要的第二件事是”LogError”方法，就像我们用于解析器一样，它将用于报告在代码生成过程中发现的错误(例如，使用未声明的参数)：
+我们需要的第二件事是“LogError”方法，就像我们用于解析器一样，它将用于报告在代码生成过程中发现的错误(例如，使用未声明的参数)：
 
 ```c++
 static LLVMContext TheContext;
@@ -49,17 +49,17 @@ Value *LogErrorV(const char *Str) {
 
 静态变量将在代码生成期间使用。`TheContext`是一个不透明的对象，拥有大量的LLVM核心数据结构，比如类型表和常量值表。我们不需要详细了解它，我们只需要一个实例来传递给需要它的API。
 
-`Builder`对象是一个帮助对象，可以轻松生成LLVM指令。[IRBuilder](https://llvm.org/doxygen/IRBuilder_8h_source.html)类模板的实例跟踪插入指令的当前位置，并具有创建新指令的方法。
+`Builder`对象是一个帮助对象，可以轻松生成LLVM指令。[IRBuilder](https://llvm.org/doxygen/IRBuilder_8h_source.html)类模板的实例跟踪当前插入指令的位置，并具有创建新指令的方法。
 
-`TheModule`是包含函数和全局变量的LLVM构造。在许多方面，它是LLVM IR用来包含代码的顶级结构。它将拥有我们生成的所有IR的内存，这就是codegen()方法返回raw value\*而不是unique_ptr\<value>的原因。
+`TheModule`是包含函数和全局变量的LLVM结构。在许多方面，它是LLVM IR用来包含代码的顶层结构。它将拥有我们生成的所有IR的内存，这就是codegen()方法返回raw Value\*而不是unique_ptr\<Value\>的原因。
 
 `NamedValues`映射跟踪在当前作用域中定义了哪些值，以及它们的LLVM表示是什么。(换句话说，它是代码的符号表)。在这种形式的Kaleidoscope中，唯一可以引用的是函数参数。因此，在为函数主体生成代码时，函数参数将在此映射中。
 
-有了这些基础知识后，我们就可以开始讨论如何为每个表达式生成代码了。请注意，这假设`Builder`已设置为生成代码*变成*什么。现在，我们假设这已经完成了，我们将只使用它来发出代码。
+有了这些基础知识后，我们就可以开始讨论如何为每个表达式生成代码了。请注意，这假设`Builder`已设置为生成代码*变成*什么(译者注：即生成目标代码类型，比如x86的汇编还是ARM汇编)。现在，我们假设这已经完成了，我们将只使用它来发出代码。
 
 ## 表达式代码生成
 
-为表达式节点生成LLVM代码非常简单：所有四个表达式节点的注释代码不到45行。首先，我们要做的是数字文字：
+为表达式节点生成LLVM代码非常简单：所有四个表达式节点加上注释代码不到45行。首先，我们要做的是数字文字：
 
 ```c++
 Value *NumberExprAST::codegen() {
@@ -67,7 +67,7 @@ Value *NumberExprAST::codegen() {
 }
 ```
 
-在LLVM IR中，数值常量由`ConstantFP`类表示，该类在内部保存`APFloat`中的数值(`APFloat`可以保存任意精度的浮点常量)。这段代码基本上只是创建并返回一个`ConstantFP`。请注意，在LLVM IR中，所有常量都是唯一的，并且都是共享的。为此，API使用了”foo::get(\.)”习惯用法，而不是”new foo(..)”或”foo::create(..)”。
+在LLVM IR中，数值常量由`ConstantFP`类表示，该类在内部保存`APFloat`中的数值(`APFloat`可以保存任意精度的浮点常量)。这段代码基本上只是创建并返回一个`ConstantFP`。请注意，在LLVM IR中，所有常量都是唯一的，并且都是共享的。为此，API使用了“foo::get(\.)”习惯用法，而不是“new foo(..)”或“foo::create(..)”。
 
 ```c++
 Value *VariableExprAST::codegen() {
@@ -79,7 +79,7 @@ Value *VariableExprAST::codegen() {
 }
 ```
 
-使用LLVM引用变量也非常简单。在简单版本的Kaleidoscope中，我们假设变量已经在某个地方发出，并且它的值是可用的。实际上，`NamedValues`映射中唯一可以出现的值是函数参数。这段代码只是检查映射中是否有指定的名称(如果没有，则表示引用了一个未知变量)并返回该变量的值。在以后的章节中，我们将添加对符号表中的[LOOP induction variables](LangImpl05.md#for-loop-expression)]和[LOCAL variables](LangImpl07.md#user-defined-local-variables).]的支持
+使用LLVM引用变量也非常简单。在简单版本的Kaleidoscope中，我们假设变量已经在某个地方发出，并且它的值是可用的。实际上，`NamedValues`映射中唯一可以出现的值是函数参数。这段代码只是检查映射中是否有指定的名称(如果没有，则表示引用了一个未知变量)并返回该变量的值。在以后的章节中，我们将添加对符号表中的[循环指示变量(LOOP induction variables)](LangImpl05.md#for-loop-expression)]和[本地变量(LOCAL variables)](LangImpl07.md#user-defined-local-variables)的支持。
 
 ```c++
 Value *BinaryExprAST::codegen() {
@@ -106,15 +106,15 @@ Value *BinaryExprAST::codegen() {
 }
 ```
 
-二元运算符开始变得更加有趣。这里的基本思想是，我们递归地发出表达式左侧的代码，然后是右侧的代码，然后计算二元表达式的结果。在这段代码中，我们简单地切换操作码以创建正确的LLVM指令。
+二元运算符开始变得更加有趣。这里的基本思想是，我们递归地发出表达式左侧的代码，然后是右侧的代码，然后计算二元表达式的结果。在这段代码中，我们简单地替换操作码以创建正确的LLVM指令。
 
 在上面的示例中，LLVM构建器类开始显示其价值。IRBuilder知道插入新创建的指令的位置，您只需指定要创建的指令(例如，使用`CreateFAdd`)、要使用的操作数(这里是`L`和`R`)，并可选择为生成的指令提供名称。
 
-LLVM的一个优点是名称只是一个提示。例如，如果上面的代码发出多个”addtmp”变量，LLVM将自动为每个变量提供一个递增的唯一数字后缀。指令的本地值名称纯粹是可选的，但它使读取IR转储变得容易得多。
+LLVM的一个优点是名称只是一个提示。例如，如果上面的代码发出多个“addtmp”变量，LLVM将自动为每个变量提供一个递增的唯一数字后缀。指令的本地值名称纯粹是可选的，但它使读取IR转储变得容易得多。
 
 [LLVM instructions](https://llvm.org/docs/LangRef.html#instruction-reference)有严格的规则约束：例如，[Add instruction](https://llvm.org/docs/LangRef.html#add-instruction)的左运算符和右运算符必须具有相同的类型，并且Add的结果类型必须与操作数类型匹配。因为Kaleidoscope中的所有值都是双精度的，所以这使得加法、减法和乘法的代码非常简单。
 
-另一方面，llvm指定[fcmp instruction](https://llvm.org/docs/LangRef.html#add-instruction)总是返回‘i1’值(一位整数)。这样做的问题是Kaleidoscope希望该值是0.0或1.0。为了获得这些语义，我们将fcmp指令与[uitofp instruction](https://llvm.org/docs/LangRef.html#uitofp-to-instruction)组合在一起此指令通过将输入视为无符号值，将其输入整数转换为浮点值。相反，如果我们使用[Sitofp instruction](https://llvm.org/docs/LangRef.html#sitofp-to-instruction)，则根据输入值的不同，Kaleidoscope‘\<’运算符将返回0.0和-1.0。
+另一方面，llvm指定[fcmp instruction](https://llvm.org/docs/LangRef.html#fcmp-instruction)总是返回‘i1’值(一位整数)。这样做的问题是Kaleidoscope希望该值是0.0或1.0。为了获得这些语义，我们将fcmp指令与[uitofp instruction](https://llvm.org/docs/LangRef.html#uitofp-to-instruction)组合在一起。此指令通过将输入视为无符号值，将其输入整数转换为浮点值。相反，如果我们使用[Sitofp instruction](https://llvm.org/docs/LangRef.html#sitofp-to-instruction)，则根据输入值的不同，Kaleidoscope‘\<’运算符将返回0.0和-1.0。
 
 ```c++
 Value *CallExprAST::codegen() {
@@ -140,13 +140,13 @@ Value *CallExprAST::codegen() {
 
 使用LLVM，函数调用的代码生成非常简单。上面的代码最初在LLVM模块的符号表中查找函数名。回想一下，LLVM模块是保存我们正在JIT的函数的容器。通过赋予每个函数与用户指定的名称相同的名称，我们可以使用LLVM符号表为我们解析函数名。
 
-一旦我们有了要调用的函数，我们就递归地对要传入的每个参数进行编码，并创建一个llvm[调用instruction](https://llvm.org/docs/LangRef.html#call-instruction).请注意，默认情况下，LLVM使用原生C调用约定，允许这些调用还调用标准库函数(如”sin”和”cos”)，而不需要额外的工作。
+一旦我们有了要调用的函数，我们就递归地对要传入的每个参数进行编码，并创建一个llvm[调用instruction](https://llvm.org/docs/LangRef.html#call-instruction).请注意，默认情况下，LLVM使用原生C调用约定，允许这些调用还可以调用标准库函数(如“sin”和“cos”)，而不需要额外的工作。
 
 到目前为止，我们对Kaleidoscope中的四个基本表达式的处理到此结束。请随意进去，再加一些。例如，通过浏览[LLVM Language Reference](https://llvm.org/docs/LangRef.html)，您会发现其他几个有趣的指令，它们非常容易插入到我们的基本框架中。
 
 ## 函数代码生成
 
-原型和函数的代码生成必须处理许多细节，这些细节使它们的代码不如表达式代码生成美观，但允许我们说明一些重要的点。首先，让我们讨论一下原型的代码生成：它们既用于函数体，也用于外部函数声明。代码以：
+原型和函数的代码生成必须处理许多细节，这些细节使它们的代码不如表达式代码生成美观，但允许我们说明一些重要的点。首先，让我们讨论一下原型的代码生成：它们既用于函数体，也用于外部函数声明。代码如下：
 
 ```c++
 Function *PrototypeAST::codegen() {
@@ -207,7 +207,7 @@ for (auto &Arg : TheFunction->args())
   NamedValues[Arg.getName()] = &Arg;
 ```
 
-现在我们到了设置`Builder`的地方。第一行创建一个新的[basic block](http://en.wikipedia.org/wiki/Basic_block)”)，插入到`TheFunction`中。然后第二行告诉构建器，应该在新的`Basic block`的末尾插入新的指令。LLVM中的基本块是定义[控制流Graph](http://en.wikipedia.org/wiki/Control_flow_graph)的函数的重要部分.因为我们没有任何控制流，所以我们的函数此时将只包含一个block。我们将在[第5章](LangImpl05.md)中解决这个问题：)。
+现在我们到了设置`Builder`的地方。第一行创建一个新的[basic block](http://en.wikipedia.org/wiki/Basic_block)”插入到`TheFunction`中。然后第二行告诉构建器，应该在新的`Basic block`的末尾插入新的指令。LLVM中的基本块是定义[控制流Graph](http://en.wikipedia.org/wiki/Control_flow_graph)的函数的重要部分.因为我们没有任何控制流，所以我们的函数此时将只包含一个block。我们将在[第5章](LangImpl05.md)中解决这个问题：)。
 
 接下来，我们将函数参数添加到NamedValues映射中(在其清除之后)，以便`VariableExprAST`节点可以访问它们。
 
@@ -284,7 +284,7 @@ return nullptr;
     }
 ```
 
-这显示了一些函数调用。请注意，如果调用此函数，将需要很长时间才能执行。在将来，我们将添加条件控制流以使递归真正有用：)。
+这显示了一些函数调用。请注意，如果调用此函数，将需要很长的执行时间。在将来，我们将添加条件控制流以使递归真正有用：)。
 
 ```
     ready> extern cos(x);
@@ -356,5 +356,12 @@ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs co
 ```
 
 以下是代码：
+[https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter3/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter3/toy.cpp)
 
 [下一步：增加JIT和优化器支持](LangImpl04.md)
+
+## 后记：心得体会
+1. 静态单赋值：https://blog.csdn.net/qq_38876114/article/details/111461727
+2. llvm::LLVMContext使用;
+3. llvm::Module使用;
+4. llvm::IRBuilder使用;
