@@ -179,7 +179,7 @@ void InitializeModuleAndPassManager(void) {
 
 KaleidoscopeJIT类是专门为这些教程构建的简单JIT类，可在llvm-src/examples/Kaleidoscope/include/KaleidoscopeJIT.h.的LLVM源代码中找到。在后面的章节中，我们将看看它是如何工作的，并用新功能对其进行扩展，但现在我们将把它当作给定的。它的接口非常简单：`addModule`将LLVM IR模块添加到JIT中，使其函数可供执行；`removeModule`移除模块，释放与该模块中的代码关联的所有内存；`findSymbol`允许我们查找指向编译后代码的指针。
 
-我们可以使用这个简单的API，并将解析顶级表达式的代码更改为如下所示：
+我们可以使用这个简单的API，并将解析顶层表达式的代码更改为如下所示：
 
 ```c++
 static void HandleTopLevelExpression() {
@@ -206,13 +206,13 @@ static void HandleTopLevelExpression() {
     }
 ```
 
-如果解析和编码生成成功，则下一步是将包含顶级表达式的模块添加到JIT。我们通过调用addModule来实现这一点，addModule触发模块中所有函数的代码生成，并返回一个句柄，该句柄可用于稍后从JIT中删除模块。模块一旦添加到JIT中就不能再修改，所以我们还会通过调用`InitializeModuleAndPassManager()`打开一个新模块来存放后续代码。
+如果解析和编码生成成功，则下一步是将包含顶层表达式的模块添加到JIT。我们通过调用addModule来实现这一点，addModule触发模块中所有函数的代码生成，并返回一个句柄，该句柄可用于稍后从JIT中删除模块。模块一旦添加到JIT中就不能再修改，所以我们还会通过调用`InitializeModuleAndPassManager()`打开一个新模块来存放后续代码。
 
 将模块添加到JIT后，我们需要获取指向最终生成的代码的指针。为此，我们调用JIT的findSymbol方法，并传递顶层表达式函数的名称：`__anon_expr`。由于我们刚刚添加了此函数，因此我们断言findSymbol返回了一个结果。
 
-接下来，我们通过对符号调用`getAddress()`来获取`__anon_expr`函数的内存地址。回想一下，我们将顶级表达式编译成一个不带参数并返回计算出的双精度值的自包含LLVM函数。因为LLVM JIT编译器匹配本机平台ABI，这意味着您只需将结果指针转换为该类型的函数指针并直接调用它。这意味着，JIT编译代码和静态链接到应用程序中的本机代码之间没有区别。
+接下来，我们通过对符号调用`getAddress()`来获取`__anon_expr`函数的内存地址。回想一下，我们将顶层表达式编译成一个不带参数并返回计算出的双精度值的自包含LLVM函数。因为LLVM JIT编译器匹配本机平台ABI，这意味着您只需将结果指针转换为该类型的函数指针并直接调用它。这意味着，JIT编译代码和静态链接到应用程序中的本机代码之间没有区别。
 
-最后，因为我们不支持顶级表达式的重新求值，所以当我们完成释放相关内存时，我们会从JIT中删除该模块。但是，回想一下，我们在前面几行创建的模块(通过`InitializeModuleAndPassManager`)仍然处于打开状态，并等待添加新代码。
+最后，因为我们不支持顶层表达式的重新求值，所以当我们完成释放相关内存时，我们会从JIT中删除该模块。但是，回想一下，我们在前面几行创建的模块(通过`InitializeModuleAndPassManager`)仍然处于打开状态，并等待添加新代码。
 
 仅凭这两个变化，让我们看看Kaleidoscope现在是如何工作的！
 
@@ -227,7 +227,7 @@ static void HandleTopLevelExpression() {
     Evaluated to 9.000000
 ```
 
-嗯，这看起来基本上是有效的。函数的转储显示了我们为每个键入的顶级表达式合成的“总是返回双精度的无参数函数”。这演示了非常基本的功能，但是我们能做更多吗？
+嗯，这看起来基本上是有效的。函数的转储显示了我们为每个键入的顶层表达式合成的“总是返回双精度的无参数函数”。这演示了非常基本的功能，但是我们能做更多吗？
 
 ```
     ready> def testfunc(x y) x + y*2;

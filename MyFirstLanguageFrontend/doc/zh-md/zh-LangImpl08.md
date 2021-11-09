@@ -2,15 +2,15 @@
 
 ## 第八章引言
 
-欢迎阅读\“[使用LLVM实现语言](index.html)\”教程的第8章。本章介绍如何将我们的语言编译成目标文件。
+欢迎阅读“[使用LLVM实现语言](index.html)”教程的第8章。本章介绍如何将我们的语言编译成目标文件。
 
 ## 选择目标
 
-LLVM具有对交叉编译的本机支持。您可以编译到当前计算机的体系结构，也可以同样轻松地编译到其他体系结构。在本教程中，我们将以当前计算机为目标。
+LLVM具有对交叉编译的原生支持。您可以编译到当前计算机的体系结构，也可以同样轻松地编译到其他体系结构。在本教程中，我们将以当前计算机为目标。
 
-为了指定您想要面向的体系结构，我们使用一个名为\“目标三元组\”的字符串。它的形式为`-`(请参阅[交叉编译docs](https://clang.llvm.org/docs/CrossCompilation.html#target-triple)).
+为了指定您想要面向的体系结构，我们使用一个名为“目标三元组”的字符串。它的形式为`<arch><sub>-<vendor>-<sys>-<abi>`(请参阅[交叉编译docs](https://clang.llvm.org/docs/CrossCompilation.html#target-triple)).
 
-举个例子，我们可以看到Clang认为我们目前的目标是三倍：
+举个例子，我们可以看到Clang认为我们目前的目标三元组：
 ```
     $ clang --version | grep Target
     Target: x86_64-unknown-linux-gnu
@@ -24,9 +24,9 @@ LLVM具有对交叉编译的本机支持。您可以编译到当前计算机的�
 auto TargetTriple = sys::getDefaultTargetTriple();
 ```
 
-LLVM不要求我们链接所有的目标功能。例如，如果我们只使用JIT，我们就不需要装配打印机。同样，如果我们只针对某些架构，我们只能链接那些架构的功能。
+LLVM不要求我们链接所有的目标功能。例如，如果我们只使用JIT，我们就不需要装配printers。同样，如果我们只针对某些架构，我们只能链接那些架构的功能。
 
-在本例中，我们将初始化发出目标代码的所有目标。
+在本例中，我们将初始化发出object code的所有targets。
 
 ```c++
 InitializeAllTargetInfos();
@@ -53,9 +53,9 @@ if (!Target) {
 
 ## 目标计算机
 
-我们还需要一台‘TargetMachine’。这个类提供了我们要瞄准的机器的完整机器描述。如果我们想要瞄准特定的功能(如SSE)或特定的CPU(如Intel的Sandylake)，我们现在就可以这么做。
+我们还需要一台‘TargetMachine’。这个类提供了我们目标机器的完整机器描述。如果我们想要针对特定的功能(如SSE)或特定的CPU(如Intel的Sandylake)，我们现在就可以这么做。
 
-要了解LLVM了解哪些功能和CPU，可以使用`llc`。例如，让我们看看x86：
+要了解LLVM支持哪些功能和CPU，可以使用`llc`。例如，让我们看看x86：
 ```
     $ llvm-as < /dev/null | llc -march=x86 -mattr=help
     Available CPUs for this target:
