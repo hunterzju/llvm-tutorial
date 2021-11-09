@@ -455,5 +455,6 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 如果在Linux上编译，请确保还添加了“-rdynamic”选项。这确保在运行时正确解析外部函数。
 
 以下是代码：
+[https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter4/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter4/toy.cpp)
 
 [下一步：扩展语言：控制流](LangImpl05.md)

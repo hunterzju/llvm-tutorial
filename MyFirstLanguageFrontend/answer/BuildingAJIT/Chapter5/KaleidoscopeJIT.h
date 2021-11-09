@@ -13,7 +13,10 @@
 #ifndef LLVM_EXECUTIONENGINE_ORC_KALEIDOSCOPEJIT_H
 #define LLVM_EXECUTIONENGINE_ORC_KALEIDOSCOPEJIT_H
 
+#include "RemoteJITUtils.h"
 #include "llvm/ADT/STLExtras.h"
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/Triple.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include "llvm/ExecutionEngine/JITSymbol.h"
 #include "llvm/ExecutionEngine/Orc/CompileUtils.h"
@@ -21,9 +24,8 @@
 #include "llvm/ExecutionEngine/Orc/IRTransformLayer.h"
 #include "llvm/ExecutionEngine/Orc/IndirectionUtils.h"
 #include "llvm/ExecutionEngine/Orc/LambdaResolver.h"
+#include "llvm/ExecutionEngine/Orc/OrcRemoteTargetClient.h"
 #include "llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h"
-#include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
-#include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Mangler.h"
@@ -70,9 +72,12 @@ irgenAndTakeOwnership(FunctionAST &FnAST, const std::string &Suffix);
 namespace llvm {
 namespace orc {
 
+// Typedef the remote-client API.
+using MyRemote = remote::OrcRemoteTargetClient;
+
 class KaleidoscopeJIT {
 private:
-  ExecutionSession ES;
+  ExecutionSession &ES;
   std::shared_ptr<SymbolResolver> Resolver;
   std::unique_ptr<TargetMachine> TM;
   const DataLayout DL;
@@ -84,12 +89,14 @@ private:
 
   LegacyIRTransformLayer<decltype(CompileLayer), OptimizeFunction> OptimizeLayer;
 
-  std::unique_ptr<JITCompileCallbackManager> CompileCallbackMgr;
+  JITCompileCallbackManager *CompileCallbackMgr;
   std::unique_ptr<IndirectStubsManager> IndirectStubsMgr;
+  MyRemote &Remote;
 
 public:
-  KaleidoscopeJIT()
-      : Resolver(createLegacyLookupResolver(
+  KaleidoscopeJIT(ExecutionSession &ES, MyRemote &Remote)
+      : ES(ES),
+        Resolver(createLegacyLookupResolver(
             ES,
             [this](StringRef Name) -> JITSymbol {
               if (auto Sym = IndirectStubsMgr->findStub(Name, false))
@@ -98,17 +105,19 @@ public:
                 return Sym;
               else if (auto Err = Sym.takeError())
                 return std::move(Err);
-              if (auto SymAddr = RTDyldMemoryManager::getSymbolAddressInProcess(
-                      std::string(Name)))
-                return JITSymbol(SymAddr, JITSymbolFlags::Exported);
+              if (auto Addr = cantFail(this->Remote.getSymbolAddress(Name)))
+                return JITSymbol(Addr, JITSymbolFlags::Exported);
               return nullptr;
             },
             [](Error Err) { cantFail(std::move(Err), "lookupFlags failed"); })),
-        TM(EngineBuilder().selectTarget()), DL(TM->createDataLayout()),
+        TM(EngineBuilder().selectTarget(Triple(Remote.getTargetTriple()), "",
+                                        "", SmallVector<std::string, 0>())),
+        DL(TM->createDataLayout()),
         ObjectLayer(AcknowledgeORCv1Deprecation, ES,
                     [this](VModuleKey K) {
                       return LegacyRTDyldObjectLinkingLayer::Resources{
-                          std::make_shared<SectionMemoryManager>(), Resolver};
+                          cantFail(this->Remote.createRemoteMemoryManager()),
+                          Resolver};
                     }),
         CompileLayer(AcknowledgeORCv1Deprecation, ObjectLayer,
                      SimpleCompiler(*TM)),
@@ -116,18 +125,22 @@ public:
                       [this](std::unique_ptr<Module> M) {
                         return optimizeModule(std::move(M));
                       }),
-        CompileCallbackMgr(cantFail(orc::createLocalCompileCallbackManager(
-            TM->getTargetTriple(), ES, 0))) {
-    auto IndirectStubsMgrBuilder =
-      orc::createLocalIndirectStubsManagerBuilder(TM->getTargetTriple());
-    IndirectStubsMgr = IndirectStubsMgrBuilder();
+        Remote(Remote) {
+    auto CCMgrOrErr = Remote.enableCompileCallbacks(0);
+    if (!CCMgrOrErr) {
+      logAllUnhandledErrors(CCMgrOrErr.takeError(), errs(),
+                            "Error enabling remote compile callbacks:");
+      exit(1);
+    }
+    CompileCallbackMgr = &*CCMgrOrErr;
+    IndirectStubsMgr = cantFail(Remote.createIndirectStubsManager());
     llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
   }
 
   TargetMachine &getTargetMachine() { return *TM; }
 
   VModuleKey addModule(std::unique_ptr<Module> M) {
-    // Add the module to the JIT with a new VModuleKey.
+    // Add the module with a new VModuleKey.
     auto K = ES.allocateVModule();
     cantFail(OptimizeLayer.addModule(K, std::move(M)));
     return K;
@@ -170,7 +183,7 @@ public:
       return SymAddr;
     };
 
-    // Create a CompileCallback using the CompileAction - this is the re-entry
+    // Create a CompileCallback suing the CompileAction - this is the re-entry
     // point into the compiler for functions that haven't been compiled yet.
     auto CCAddr = cantFail(
         CompileCallbackMgr->getCompileCallback(std::move(CompileAction)));
@@ -179,14 +192,18 @@ public:
     // definition" - an unchanging (constant address) entry point to the
     // function implementation.
     // Initially we point the stub's function-pointer at the compile callback
-    // that we just created. When the compile action for the callback is run we
-    // will update the stub's function pointer to point at the function
+    // that we just created. In the compile action for the callback we will
+    // update the stub's function pointer to point at the function
     // implementation that we just implemented.
     if (auto Err = IndirectStubsMgr->createStub(
             mangle(SharedFnAST->getName()), CCAddr, JITSymbolFlags::Exported))
       return Err;
 
     return Error::success();
+  }
+
+  Error executeRemoteExpr(JITTargetAddress ExprAddr) {
+    return Remote.callVoidVoid(ExprAddr);
   }
 
   JITSymbol findSymbol(const std::string Name) {
