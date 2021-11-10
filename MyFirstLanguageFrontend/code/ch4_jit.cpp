@@ -437,10 +437,9 @@ Function *PrototypeAST::codegen() {
 
 Function *FunctionAST::codegen() {
   // First, check for an existing function from a previous 'extern' declaration.
-  Function *TheFunction = TheModule->getFunction(Proto->getName());
-
-  if (!TheFunction)
-    TheFunction = Proto->codegen();
+  auto &P = *Proto;
+  FunctionProtos[Proto->getName()] = std::move(Proto);
+  Function *TheFunction = getFunction(P.getName());
 
   if (!TheFunction)
     return nullptr;
