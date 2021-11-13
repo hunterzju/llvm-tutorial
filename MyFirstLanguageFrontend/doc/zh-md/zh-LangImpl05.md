@@ -579,6 +579,6 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 # Run
 ./toy
 ```
-
+[https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter5/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter5/toy.cpp)
 
 [下一步：扩展语言：自定义运算符](LangImpl06.md)

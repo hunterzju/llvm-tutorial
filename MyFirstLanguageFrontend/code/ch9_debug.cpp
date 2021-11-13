@@ -243,7 +243,7 @@ class BinaryExprAST : public ExprAST {
 	std::unique_ptr<ExprAST> LHS, RHS;
 
 public:
-	BinaryExprAST(char Op, std::unique_ptr<ExprAST> LHS,
+	BinaryExprAST(SourceLocation Loc, char Op, std::unique_ptr<ExprAST> LHS,
 				  std::unique_ptr<ExprAST> RHS)
 		: Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
 	Value *codegen() override;
@@ -609,6 +609,7 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<Expr
 			return LHS;
 		
 		int BinOp = CurTok;
+		SourceLocation BinLoc = CurLoc;
 		getNextToken();
 
 		auto RHS = ParseUnary();
@@ -622,7 +623,7 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<Expr
 				return nullptr;
 		}
 
-		LHS = std::make_unique<BinaryExprAST>(BinOp, std::move(LHS), std::move(RHS));
+		LHS = std::make_unique<BinaryExprAST>(BinLoc, std::move(LHS), std::move(RHS));
 	}
 }
 
@@ -1222,7 +1223,7 @@ static void HanldeTopLevelExpression() {
 
 static void MainLoop() {
 	while (true) {
-		fprintf(stderr, "ready> ");
+		// fprintf(stderr, "ready> ");
 		switch (CurTok)
 		{
 		case tok_eof:
@@ -1288,7 +1289,7 @@ int main() {
 	DBuilder = std::make_unique<DIBuilder>(*TheModule);
 
 	KSDbgInfo.TheCU = DBuilder->createCompileUnit(
-		dwarf::DW_LANG_C, DBuilder->createFile("fib.ks", "."),
+		dwarf::DW_LANG_C, DBuilder->createFile("ch9_fib.ks", "."),
 		"Kaleidoscope Compiler", 0, "", 0);
 
 	MainLoop();
