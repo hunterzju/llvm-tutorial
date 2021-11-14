@@ -439,7 +439,7 @@ extern "C" DLLEXPORT double putchard(double X) {
 
 现在，我们可以使用以下命令向控制台生成简单的输出：“`extern putchard(X)；putchard(120)；`”，它在控制台上打印小写的‘x’(120是‘x’的ASCII代码)。类似的代码可用于在Kaleidoscope中实现文件I/O、控制台输入和许多其他功能。
 
-这就完成了Kaleidoscope教程的JIT和优化器一章。在这一点上，我们可以编译一种非图灵完全的编程语言，并以用户驱动的方式对其进行优化和JIT编译。接下来，我们将研究[使用控制流构造扩展语言](LangImpl05.md)，解决一些有趣的LLVM IR问题。
+这就完成了Kaleidoscope教程的JIT和优化器一章。在这一点上，我们可以编译一种非图灵完全的编程语言，并以用户驱动的方式对其进行优化和JIT编译。接下来，我们将研究[使用控制流构造扩展语言](zh-LangImpl05.md)，解决一些有趣的LLVM IR问题。
 
 ## 完整代码列表
 
@@ -457,4 +457,4 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 以下是代码：
 [https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter4/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter4/toy.cpp)
 
-[下一步：扩展语言：控制流](LangImpl05.md)
+[下一步：扩展语言：控制流](zh-LangImpl05.md)

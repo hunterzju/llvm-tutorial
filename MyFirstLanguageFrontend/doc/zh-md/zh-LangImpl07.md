@@ -252,7 +252,7 @@ Builder.CreateStore(NextVar, Alloca);
 ...
 ```
 
-此代码实际上与[在我们允许可变variables](LangImpl05.html#code-generation-for-the-for-loop).之前]的代码相同。最大的区别在于，我们不再需要构造PHI节点，而是根据需要使用加载(load)/存储(store)来访问变量。
+此代码实际上与[在我们允许可变variables](zh-LangImpl05.html#code-generation-for-the-for-loop).之前]的代码相同。最大的区别在于，我们不再需要构造PHI节点，而是根据需要使用加载(load)/存储(store)来访问变量。
 
 为了支持可变参数变量，我们还需要为它们进行分配。这方面的代码也非常简单：
 
@@ -663,4 +663,4 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 
 以下是代码：
 
-[下一步：编译为对象代码](LangImpl08.html)
+[下一步：编译为对象代码](zh-LangImpl08.html)

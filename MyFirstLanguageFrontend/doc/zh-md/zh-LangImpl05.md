@@ -165,7 +165,7 @@ ifcont:     ; preds = %else, %then
 
 要可视化控制流图，您可以使用LLVM[OPT](https://llvm.org/cmds/opt.html)工具的一个很好的特性。如果您将此LLVMIR放入“t.ll”并运行“`llvm-as < t.ll | OPT-ANALYLE-VIEW-Cfg`”，[将弹出一个窗口up](https://llvm.org/docs/ProgrammersManual.html#viewing-graphs-while-debugging-code)，您将看到此图形：
 
-！[示例配置](../pics/LangImpl05-cfg.png){.ign-center}
+！[示例配置](../pics/zh-LangImpl05-cfg.png){.ign-center}
 
 实现这一点的另一种方法是调用“`F->viewCFG()`”或“`F->viewCFGOnly()`”(其中F是“`Function*`”)，方法是将实际调用插入代码并重新编译，或者在调试器中调用它们。LLVM有许多用于可视化各种图形的很好的特性。
 
@@ -180,7 +180,7 @@ THEN/ELSE块执行完毕后，它们都会分支回‘ifcont’块，以执行IF
 1. 涉及用户变量的代码：`x=1；x=x+1；`
 2. 隐含在AST结构中的值，如在本例中为Phi节点。
 
-在本教程(“可变变量”)的[第7章](LangImpl07.md)中，我们将深入讨论#1。现在，请相信我，您不需要使用SSA构造来处理这种情况。对于#2，您可以选择使用我们将在#1中描述的技术，也可以在方便的情况下直接插入Phi节点。在这种情况下，生成Phi节点非常容易，所以我们选择直接执行。
+在本教程(“可变变量”)的[第7章](zh-LangImpl07.md)中，我们将深入讨论#1。现在，请相信我，您不需要使用SSA构造来处理这种情况。对于#2，您可以选择使用我们将在#1中描述的技术，也可以在方便的情况下直接插入Phi节点。在这种情况下，生成Phi节点非常容易，所以我们选择直接执行。
 
 好了，动机和概述到此为止，让我们生成代码吧！
 
@@ -567,7 +567,7 @@ return Constant::getNullValue(Type::getDoubleTy(TheContext));
 
 最后的代码处理各种清理：现在我们有了“NextVar”值，我们可以将传入的值添加到循环PHI节点。之后，我们从符号表中删除循环变量，以便它不在for循环之后的作用域内。最后，for循环的代码生成总是返回0.0，这就是我们从`ForExprAST：：codegen()`返回的内容。
 
-至此，我们结束了本教程的“向Kaleidoscope添加控制流”一章。在本章中，我们添加了两个控制流构造，并使用它们来激发LLVM IR的一些重要方面，这些方面对于前端实现者来说是非常重要的。在我们传奇的下一章中，我们将变得更加疯狂，将[用户定义操作符](LangImpl06.md)添加到我们可怜又无辜的语言中。
+至此，我们结束了本教程的“向Kaleidoscope添加控制流”一章。在本章中，我们添加了两个控制流构造，并使用它们来激发LLVM IR的一些重要方面，这些方面对于前端实现者来说是非常重要的。在我们传奇的下一章中，我们将变得更加疯狂，将[用户定义操作符](zh-LangImpl06.md)添加到我们可怜又无辜的语言中。
 
 ## 完整代码列表
 
@@ -581,4 +581,4 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 ```
 [https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter5/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter5/toy.cpp)
 
-[下一步：扩展语言：自定义运算符](LangImpl06.md)
+[下一步：扩展语言：自定义运算符](zh-LangImpl06.md)

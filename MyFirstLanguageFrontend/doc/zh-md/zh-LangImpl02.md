@@ -2,7 +2,7 @@
 
 ## 第二章绪论
 
-欢迎阅读“[使用LLVM实现语言](index.md)”教程的第2章。本章将向您展示如何使用[第1章](LangImpl01.md)中内置的词法分析器为我们的Kaleidoscope语言构建一个完整的[parser](http://en.wikipedia.org/wiki/Parsing)。一旦我们有了解析器，我们将定义并构建一个[抽象语法树](http://en.wikipedia.org/wiki/Abstract_syntax_tree)(AST)]。
+欢迎阅读“[使用LLVM实现语言](index.md)”教程的第2章。本章将向您展示如何使用[第1章](zh-LangImpl01.md)中内置的词法分析器为我们的Kaleidoscope语言构建一个完整的[parser](http://en.wikipedia.org/wiki/Parsing)。一旦我们有了解析器，我们将定义并构建一个[抽象语法树](http://en.wikipedia.org/wiki/Abstract_syntax_tree)(AST)]。
 
 我们将构建的解析器结合使用[递归下降Parsing](http://en.wikipedia.org/wiki/Recursive_descent_parser)]和[运算符优先Parsing](http://en.wikipedia.org/wiki/Operator-precedence_parser)]来解析Kaleidoscope语言(后者用于二进制表达式，前者用于其他所有内容)。在我们开始解析之前，让我们先谈谈解析器的输出：抽象语法树。
 
@@ -218,7 +218,7 @@ static std::unique_ptr<ExprAST> ParseIdentifierExpr() {
 
 此例程遵循与其他例程相同的样式。(如果当前Token是`tok_Identifier`令牌，则预期会被调用)。它还具有递归和错误处理功能。其中一个有趣的方面是，它使用*前瞻（look ahead)*来确定当前标识符是独立变量引用还是函数调用表达式。它通过检查标识符之后的令牌是否是‘(’令牌来处理此问题，根据需要构造`VariableExprAST`或`CallExprAST`节点。
 
-现在我们已经准备好了所有简单的表达式解析逻辑，我们可以定义一个辅助函数来将其包装到一个入口点中。我们将这类表达式称为“主（Primary）”表达式，原因在[后续第6章教程](LangImpl06.md#user-defined-unary-operators)将变得更加清楚.为了解析任意主表达式，我们需要确定它是哪种表达式：
+现在我们已经准备好了所有简单的表达式解析逻辑，我们可以定义一个辅助函数来将其包装到一个入口点中。我们将这类表达式称为“主（Primary）”表达式，原因在[后续第6章教程](zh-LangImpl06.md#user-defined-unary-operators)将变得更加清楚.为了解析任意主表达式，我们需要确定它是哪种表达式：
 
 ```c++
 /// primary
@@ -500,7 +500,7 @@ ready> ^D
 $
 ```
 
-这里有很大的扩展空间。您可以定义新的AST节点，以多种方式扩展语言等。在[下一篇](LangImpl03.md)中，我们将介绍如何从AST生成LLVM中间表示(IR)。
+这里有很大的扩展空间。您可以定义新的AST节点，以多种方式扩展语言等。在[下一篇](zh-LangImpl03.md)中，我们将介绍如何从AST生成LLVM中间表示(IR)。
 
 ## 完整代码列表
 
@@ -516,7 +516,7 @@ clang++ -g -O3 toy.cpp `llvm-config --cxxflags`
 以下是代码：
 [https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter2/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter2/toy.cpp)
 
-[下一步：实现LLVM IR代码生成](LangImpl03.md)
+[下一步：实现LLVM IR代码生成](zh-LangImpl03.md)
 
 ## 后记：心得体会
 1. 抽象语法树（AST）是对语言建模的结果，这里AST分为表达式，原型（protoType）和函数三大类；

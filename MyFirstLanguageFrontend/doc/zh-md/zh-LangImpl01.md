@@ -28,7 +28,7 @@
     atan2(sin(.4), cos(42))
 ```
 
-第6章包括了一个更有趣的例子，在那里我们编写了一个小的Kaleidoscope应用程序，它以不同的放大倍数[显示一个Mandelbrot集](LangImpl06.md#Kick-the-the Tires)。
+第6章包括了一个更有趣的例子，在那里我们编写了一个小的Kaleidoscope应用程序，它以不同的放大倍数[显示一个Mandelbrot集](zh-LangImpl06.md#Kick-the-the Tires)。
 
 让我们深入研究一下这种语言的实现！
 
@@ -130,9 +130,9 @@ return ThisChar;
 }
 ```
 
-这样，我们就有了基本Kaleidoscope语言的完整词法分析器(本教程的[下一章](LangImpl02.md)中提供了词法分析器的[完整代码清单](LangImpl02.md#Full-code-Listing))。接下来，我们将[构建一个简单的解析器，使用它来构建抽象语法树](LangImpl02.md)。当我们完成后，我们将包含一个驱动程序，以便您可以同时使用词法分析器和解析器。
+这样，我们就有了基本Kaleidoscope语言的完整词法分析器(本教程的[下一章](zh-LangImpl02.md)中提供了词法分析器的[完整代码清单](zh-LangImpl02.md#Full-code-Listing))。接下来，我们将[构建一个简单的解析器，使用它来构建抽象语法树](zh-LangImpl02.md)。当我们完成后，我们将包含一个驱动程序，以便您可以同时使用词法分析器和解析器。
 
-[下一步：实现解析器和AST](LangImpl02.md)
+[下一步：实现解析器和AST](zh-LangImpl02.md)
 
 ## 后记：心得体会
 本教程仅用到了最基础的c++来完成词法分析部分的工作，相比于用flex做词法分析，是非常简洁的入门教程。进阶阅读可以了解下正则表达式以及flex。
