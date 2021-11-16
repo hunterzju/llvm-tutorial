@@ -2,7 +2,7 @@
 
 ## 第二章绪论
 
-欢迎阅读“[使用LLVM实现语言](index.md)”教程的第2章。本章将向您展示如何使用[第1章](zh-LangImpl01.md)中内置的词法分析器为我们的Kaleidoscope语言构建一个完整的[parser](http://en.wikipedia.org/wiki/Parsing)。一旦我们有了解析器，我们将定义并构建一个[抽象语法树](http://en.wikipedia.org/wiki/Abstract_syntax_tree)(AST)]。
+欢迎阅读“[使用LLVM实现语言](zh-index.md)”教程的第2章。本章将向您展示如何使用[第1章](zh-LangImpl01.md)中内置的词法分析器为我们的Kaleidoscope语言构建一个完整的[parser](http://en.wikipedia.org/wiki/Parsing)。一旦我们有了解析器，我们将定义并构建一个[抽象语法树](http://en.wikipedia.org/wiki/Abstract_syntax_tree)(AST)]。
 
 我们将构建的解析器结合使用[递归下降Parsing](http://en.wikipedia.org/wiki/Recursive_descent_parser)]和[运算符优先Parsing](http://en.wikipedia.org/wiki/Operator-precedence_parser)]来解析Kaleidoscope语言(后者用于二进制表达式，前者用于其他所有内容)。在我们开始解析之前，让我们先谈谈解析器的输出：抽象语法树。
 
