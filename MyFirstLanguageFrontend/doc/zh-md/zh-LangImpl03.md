@@ -2,7 +2,7 @@
 
 ## 第三章绪论
 
-欢迎阅读“[使用LLVM实现语言](index.md)”教程的第3章。本章介绍如何将第2章中构建的[抽象语法树](LangImpl02.md)转换为LLVM IR。这将教您一些关于LLVM是如何做事情的知识，并演示它的易用性。与生成LLVM IR代码相比，构建词法分析器和解析器的工作要多得多。：)
+欢迎阅读“[使用LLVM实现语言](index.md)”教程的第3章。本章介绍如何将第2章中构建的[抽象语法树](zh-LangImpl02.md)转换为LLVM IR。这将教您一些关于LLVM是如何做事情的知识，并演示它的易用性。与生成LLVM IR代码相比，构建词法分析器和解析器的工作要多得多。：)
 
 **请注意**：本章及以后的代码需要LLVM3.7或更高版本。LLVM 3.6和更早版本将不能与其配合使用。还要注意，您需要使用与您的LLVM发行版相匹配的本教程版本：如果您使用的是正式的LLVM发行版，请使用发行版中包含的文档版本或在[llvm.org发行版页面](https://llvm.org/releases/)中的版本。
 
@@ -79,7 +79,7 @@ Value *VariableExprAST::codegen() {
 }
 ```
 
-使用LLVM引用变量也非常简单。在简单版本的Kaleidoscope中，我们假设变量已经在某个地方发出，并且它的值是可用的。实际上，`NamedValues`映射中唯一可以出现的值是函数参数。这段代码只是检查映射中是否有指定的名称(如果没有，则表示引用了一个未知变量)并返回该变量的值。在以后的章节中，我们将添加对符号表中的[循环指示变量(LOOP induction variables)](LangImpl05.md#for-loop-expression)]和[本地变量(LOCAL variables)](LangImpl07.md#user-defined-local-variables)的支持。
+使用LLVM引用变量也非常简单。在简单版本的Kaleidoscope中，我们假设变量已经在某个地方发出，并且它的值是可用的。实际上，`NamedValues`映射中唯一可以出现的值是函数参数。这段代码只是检查映射中是否有指定的名称(如果没有，则表示引用了一个未知变量)并返回该变量的值。在以后的章节中，我们将添加对符号表中的[循环指示变量(LOOP induction variables)](zh-LangImpl05.md#for-loop-expression)]和[本地变量(LOCAL variables)](zh-LangImpl07.md#user-defined-local-variables)的支持。
 
 ```c++
 Value *BinaryExprAST::codegen() {
@@ -207,7 +207,7 @@ for (auto &Arg : TheFunction->args())
   NamedValues[Arg.getName()] = &Arg;
 ```
 
-现在我们到了设置`Builder`的地方。第一行创建一个新的[basic block](http://en.wikipedia.org/wiki/Basic_block)”插入到`TheFunction`中。然后第二行告诉构建器，应该在新的`Basic block`的末尾插入新的指令。LLVM中的基本块是定义[控制流Graph](http://en.wikipedia.org/wiki/Control_flow_graph)的函数的重要部分.因为我们没有任何控制流，所以我们的函数此时将只包含一个block。我们将在[第5章](LangImpl05.md)中解决这个问题：)。
+现在我们到了设置`Builder`的地方。第一行创建一个新的[basic block](http://en.wikipedia.org/wiki/Basic_block)”插入到`TheFunction`中。然后第二行告诉构建器，应该在新的`Basic block`的末尾插入新的指令。LLVM中的基本块是定义[控制流Graph](http://en.wikipedia.org/wiki/Control_flow_graph)的函数的重要部分.因为我们没有任何控制流，所以我们的函数此时将只包含一个block。我们将在[第5章](zh-LangImpl05.md)中解决这个问题：)。
 
 接下来，我们将函数参数添加到NamedValues映射中(在其清除之后)，以便`VariableExprAST`节点可以访问它们。
 
@@ -253,7 +253,7 @@ return nullptr;
     }
 ```
 
-请注意解析器如何为我们将顶层表达式转换为匿名函数。当我们在下一章中添加[JIT support](LangImpl04.md#adding-a-jit-compiler)]时，这将非常方便。还要注意的是，代码是按字面意思转录的，除了IRBuilder执行的简单常量折叠外，没有执行任何优化。我们将在下一章中[显式添加optimizations](LangImpl04.md#trivial-constant-folding)。
+请注意解析器如何为我们将顶层表达式转换为匿名函数。当我们在下一章中添加[JIT support](zh-LangImpl04.md#adding-a-jit-compiler)]时，这将非常方便。还要注意的是，代码是按字面意思转录的，除了IRBuilder执行的简单常量折叠外，没有执行任何优化。我们将在下一章中[显式添加optimizations](zh-LangImpl04.md#trivial-constant-folding)。
 
 ```
     ready> def foo(a b) a*a + 2*a*b + b*b;
@@ -342,7 +342,7 @@ return nullptr;
 
 当您退出当前演示(在Linux上通过CTRL+D发送EOF，在Windows上通过CTRL+Z并回车)时，它会转储生成的整个模块的IR。在这里，您可以看到所有函数相互引用的整体情况。
 
-这结束了Kaleidoscope教程的第三章。接下来，我们将描述如何[添加JIT代码生成和优化器支持](LangImpl04.md)，这样我们就可以真正开始运行代码了！
+这结束了Kaleidoscope教程的第三章。接下来，我们将描述如何[添加JIT代码生成和优化器支持](zh-LangImpl04.md)，这样我们就可以真正开始运行代码了！
 
 ## 完整代码列表
 
@@ -358,7 +358,7 @@ clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs co
 以下是代码：
 [https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter3/toy.cpp](https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter3/toy.cpp)
 
-[下一步：增加JIT和优化器支持](LangImpl04.md)
+[下一步：增加JIT和优化器支持](zh-LangImpl04.md)
 
 ## 后记：心得体会
 1. 静态单赋值：https://blog.csdn.net/qq_38876114/article/details/111461727
