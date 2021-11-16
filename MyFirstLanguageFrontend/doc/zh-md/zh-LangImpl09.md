@@ -333,4 +333,4 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 
 以下是代码：
 
-[下一步：结论和其他有用的LLVM花絮](LangImpl10.html)
+[下一步：结论和其他有用的LLVM花絮](zh-LangImpl10.html)
