@@ -458,9 +458,7 @@ With the C++ implementation defined, let's see how this can be mapped to the [de
 *   Literals
     -   A keyword or punctuation surrounded by \`\`.
 *   Variables
-    -   An entity that has been registered on the operation itself, i.e. an
-        argument(attribute or operand), result, successor, etc. In the `PrintOp`
-        example above, a variable would be `$input`.
+    -   An entity that has been registered on the operation itself, i.e. an argument(attribute or operand), result, successor, etc. In the `PrintOp` example above, a variable would be `$input`.
 
 A direct mapping of our C++ format looks something like:
 
