@@ -1,14 +1,12 @@
 # 第6章：降低到LLVM和代码生成
 
-[TOC]
-
-在[上一章](CH-5.md)中，我们介绍了[方言转换](../../DialectConversion.md)框架，并将很多`toy‘操作部分降为仿射循环嵌套进行优化。在本章中，我们将最终降低到LLVM进行代码生成。
+在[上一章](zh-Ch-5.md)中，我们介绍了[方言转换](../../DialectConversion.md)框架，并将很多`toy`操作部分降为仿射循环嵌套进行优化。在本章中，我们将最终降低到LLVM进行代码生成。
 
 ## 降低到LLVM
 
-对于这一下降，我们将再次使用方言转换框架来执行繁重的提升。但是，这次我们将执行到[LLVM方言](../../方言/LLVM.md)的完全转换。谢天谢地，我们已经降低了所有的“toy`操作，只有一个除外，最后一个是”toy.print`。在完成到LLVM的转换之前，我们先降低`toy.print`操作。我们将此操作降低到为每个元素调用`printf`的非仿射循环嵌套。注意，因为方言转换框架支持[传递性lowering](../getting_started/Glossary.md#transitive-lowering)，]，所以我们不需要用LLVM方言直接发出操作。通过传递性降低，我们的意思是转换框架可以应用多个模式来使操作完全合法化。在本例中，我们生成的是结构化循环嵌套，而不是LLVM方言中的分支形式。只要我们有一个从循环操作到LLVM的降级，降级仍然会成功。
+对于这一下降，我们将再次使用方言转换框架来执行繁琐的工作。但是，这次我们将执行到[LLVM方言](../../方言/LLVM.md)的完全转换。谢天谢地，我们已经降低了所有的`toy`操作，只有一个除外，最后一个是`toy.print`。在完成到LLVM的转换之前，我们先降低`toy.print`操作。我们将此操作降低到为每个元素调用`printf`的非仿射循环嵌套。注意，因为方言转换框架支持[传递性lowering](../getting_started/Glossary.md#transitive-lowering)，所以我们不需要用LLVM方言直接发出操作。通过传递性降低，我们的意思是转换框架可以应用多个模式来使操作完全合法化。在本例中，我们生成的是结构化循环嵌套，而不是LLVM方言中的分支形式。只要我们有一个从循环操作到LLVM的降级，降级仍然会成功。
 
-在降低过程中，我们可以获得或构建printf的声明，如下所示：
+在降低过程中，我们可以通过如下方式获得或构建printf的声明：
 
 ```c++
 /// Return a symbol reference to the printf function, inserting it into the
@@ -36,7 +34,7 @@ static FlatSymbolRefAttr getOrInsertPrintf(PatternRewriter &rewriter,
 }
 ```
 
-既然已经定义了printf操作的降低，我们可以指定降低所需的组件。这些组件与[上一章](CH-5.md)中定义的组件基本相同。
+既然已经定义了printf操作的降低，我们可以指定降低所需的组件。这些组件与[上一章](zh-Ch-5.md)中定义的组件基本相同。
 
 ### 转换目标
 
@@ -50,7 +48,7 @@ static FlatSymbolRefAttr getOrInsertPrintf(PatternRewriter &rewriter,
 
 ### 类型转换器
 
-这种降低还会将当前正在操作的MemRef类型转换为LLVM中的表示形式。要执行此转换，我们使用TypeConverter作为降级的一部分。此转换器指定一种类型如何映射到另一种类型。现在我们正在上演更复杂的涉及挡路争论的下场，这是必要的。假设我们没有任何需要降低的特定于玩具方言的类型，那么对于我们的用例来说，默认的转换器就足够了。
+这种降低还会将当前正在操作的MemRef类型转换为LLVM中的表示形式。要执行此转换，我们使用TypeConverter作为降级的一部分。此转换器指定一种类型如何映射到另一种类型。由于我们正在执行更复杂的涉及block参数的下降，使用转换器是必要的。假设我们没有任何需要降低的特定于Toy方言的类型，那么对于我们的用例来说，默认的转换器就足够了。
 
 ```c++
   LLVMTypeConverter typeConverter(&getContext());
@@ -58,7 +56,7 @@ static FlatSymbolRefAttr getOrInsertPrintf(PatternRewriter &rewriter,
 
 ### 转换模式
 
-既然已经定义了转换目标，我们需要提供用于降低的模式。在编译过程中的这一点上，我们组合了`toy`、`affine`和`std`操作。幸运的是，`std`和`affine`方言已经提供了将它们转换为LLVM方言所需的模式集。这些模式允许通过依赖于[传递性lowering](../getting_started/Glossary.md#transitive-lowering).]在多个阶段降低IR
+既然已经定义了转换目标，我们需要提供用于降低的模式。在编译过程中的这一点上，我们组合了`toy`、`affine`和`std`操作。幸运的是，`std`和`affine`方言已经提供了将它们转换为LLVM方言所需的模式集。这些模式允许通过依赖[传递性lowering](../getting_started/Glossary.md#transitive-lowering)来通过多个阶段降低IR。
 
 ```c++
   mlir::OwningRewritePatternList patterns;
@@ -71,7 +69,7 @@ static FlatSymbolRefAttr getOrInsertPrintf(PatternRewriter &rewriter,
   patterns.insert<PrintOpLowering>(&getContext());
 ```
 
-### 全降
+### 完全降级
 
 我们希望完全降到LLVM，所以我们使用`FullConversion`。这确保在转换后只保留合法的操作。
 
@@ -140,7 +138,7 @@ llvm.func @main() {
 
 ## CodeGen：摆脱MLIR
 
-在这一点上，我们正处于代码生成的尖端。我们可以用LLVM方言生成代码，所以现在我们只需要导出到LLVM IR并设置一个JIT来运行它。
+此时，我们正处于代码生成的节骨眼。我们可以用LLVM方言生成代码，所以现在我们只需要导出到LLVM IR并设置一个JIT来运行它。
 
 ### 发射LLVM IR
 
@@ -203,8 +201,7 @@ define void @main()
 }
 ```
 
-转储LLVM IR的完整代码清单可在
-`dumpLLVMIR()`函数中的`Examples/toy/ch6/toy.cpp`：
+转储LLVM IR的完整代码清单可在`Examples/toy/ch6/toy.cpp`中的`dumpLLVMIR()`函数中：
 
 ```c++
 
@@ -239,7 +236,7 @@ int dumpLLVMIR(mlir::ModuleOp module) {
 
 ### 设置JIT
 
-可以使用`mlir：：ExecutionEngine`基础设施设置JIT来运行包含LLVM方言的模块。这是一个围绕LLVM的JIT的实用程序包装，接受`.mlir`作为输入。设置JIT的完整代码清单可以在`runJit()`函数的`ch6/toyc.cpp`中找到：
+可以使用`mlir：：ExecutionEngine`基础设施设置JIT来运行包含LLVM方言的模块。这是一个围绕LLVM的JIT的实用程序包装，接受`.mlir`作为输入。设置JIT的完整代码清单可以在`ch6/toyc.cpp`中的`runJit()`函数中找到：
 
 ```c++
 int runJit(mlir::ModuleOp module) {
@@ -277,8 +274,8 @@ $ echo 'def main() { print([[1, 2], [3, 4]]); }' | ./bin/toyc-ch6 -emit=jit
 3.000000 4.000000
 ```
 
-您也可以玩`-emit=mlir`，`-emit=mlir-affine`，`-emit=mlir-llvm`，`-emit=llvm`来比较不同等级的IR。还可以尝试像[`--print-ir-after-all`](../../PassManagement.md#ir-printing)这样的选项来跟踪整个管道中IR的演变。
+您也可以通过`-emit=mlir`，`-emit=mlir-affine`，`-emit=mlir-llvm`，`-emit=llvm`来比较不同等级的IR。还可以尝试像[`--print-ir-after-all`](../../PassManagement.md#ir-printing)这样的选项来跟踪整个流程中IR的演变。
 
-本节使用的示例代码可以在test/Examples/Toy/ch6/llvm-lowering.mlir中找到。
+本节使用的示例代码可以在`test/Examples/Toy/ch6/llvm-lowering.mlir`中找到。
 
-到目前为止，我们已经使用了原始数据类型。在[下一章](CH-7.md)中，我们将添加一个复合的`struct`类型。
+到目前为止，我们已经使用了原始数据类型。在[下一章](zh-Ch-7.md)中，我们将添加一个复合的`struct`类型。

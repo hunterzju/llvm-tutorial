@@ -1,7 +1,5 @@
 # Chapter 7: Adding a Composite Type to Toy
 
-[TOC]
-
 In the [previous chapter](Ch-6.md), we demonstrated an end-to-end compilation flow from our Toy front-end to LLVM IR. In this chapter, we will extend the Toy language to support a new composite `struct` type.
 
 ## Defining a `struct` in Toy

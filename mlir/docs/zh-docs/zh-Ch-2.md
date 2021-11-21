@@ -494,6 +494,6 @@ module {
 
 ## 完整的toy示例
 
-我们现在可以生成我们的“toyIR”了。您可以构建`toyc-ch2`，然后尝试上面的示例：`toyc-CH2 test/Examples/Toy/CH2/codegen.toy -emit=mlir -mlir-print-debuginfo`。我们还可以检查RoundTrip过程：`toyc-CH2 test/examples/Toy/CH2/codegen.toy -emit= -mlir-print-debuginfo 2>codegen.mlir`后跟`toyc-CH2 codegen.mlir -emit=mlir`。您还可以对最终的定义文件使用`mlir-tblgen`，并研究生成的C++代码。
+我们现在可以生成我们的“toyIR”了。您可以构建`toyc-ch2`，然后尝试上面的示例：`toyc-Ch2 test/Examples/Toy/CH2/codegen.toy -emit=mlir -mlir-print-debuginfo`。我们还可以检查RoundTrip过程：`toyc-CH2 test/examples/Toy/CH2/codegen.toy -emit= -mlir-print-debuginfo 2>codegen.mlir`后跟`toyc-CH2 codegen.mlir -emit=mlir`。您还可以对最终的定义文件使用`mlir-tblgen`，并研究生成的C++代码。
 
-到现在为止，MLIR知道我们的toy方言和操作。在[下一章](CH-3.md)中，我们将利用我们的新方言实现一些针对toy语言的高级语言特定分析和转换。
+到现在为止，MLIR知道我们的toy方言和操作。在[下一章](zh-Ch-3.md)中，我们将利用我们的新方言实现一些针对toy语言的高级语言特定分析和转换。

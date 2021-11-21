@@ -1,12 +1,10 @@
-# 第7章：向玩具添加复合类型
+# 第7章：向Toy添加复合类型
 
-[TOC]
+在[上一章](zh-Ch-6.md)中，我们演示了从Toy前端到LLVM IR的端到端编译流程。在本章中，我们将扩展Toy语言以支持新的复合`struct`类型。
 
-在[上一章](CH-6.md)中，我们演示了从Toy前端到LLVM IR的端到端编译流程。在本章中，我们将扩展玩具语言以支持新的复合`struct`类型。
+## 在Toy中定义“struct`”
 
-## 在玩具中定义“struct`”
-
-我们需要定义的第一件事是用我们的“玩具”源语言定义这种类型的接口。Toy中`struct`类型的通用语法如下：
+我们需要定义的第一件事是用我们的“Toy”源语言定义这种类型的接口。Toy中`struct`类型的通用语法如下：
 
 ```toy
 # A struct is defined by using the `struct` keyword followed by a name.
@@ -50,13 +48,13 @@ def main() {
 
 #### 定义类型类
 
-如[第2章](CH-2.md)中所述，MLIR中的[`Type`](../../LangRef.md#type-system)对象是值类型的，并且依赖于拥有保存该类型的实际数据的内部存储对象。`Type`类本身充当内部`TypeStorage`对象的简单包装，该对象在`MLIRContext`的实例中是唯一的。在构造`Type`时，我们在内部只是构造并唯一一个存储类的实例。
+如[第2章](zh-Ch-2.md)中所述，MLIR中的[`Type`](../../LangRef.md#type-system)对象是值类型的，并且依赖于拥有保存该类型的实际数据的内部存储对象。`Type`类本身充当内部`TypeStorage`对象的简单包装，该对象在`MLIRContext`的实例中是唯一的。在构造`Type`时，我们在内部只是构造并唯一化一个存储类的实例。
 
 在定义包含参数数据的新`Type`时(例如`struct`类型，需要额外的信息来保存元素类型)，我们需要提供派生的存储类。没有额外数据的`singleton`类型(如[`index`type](../../LangRef.md#index-type))不需要存储类，使用默认的`TypeStorage`。
 
 ##### 定义存储类
 
-类型存储对象包含构造和唯一类型实例所需的所有数据。派生存储类必须继承自基本`mlir：：TypeStorage`，并提供一组别名和钩子，供`MLIRContext`用于唯一。下面是我们的`struct`类型的存储实例的定义，每个必需的要求都内联了详细说明：
+类型存储对象包含构造和唯一类型实例所需的所有数据。派生存储类必须继承自基本`mlir：：TypeStorage`，并提供一组别名和钩子，供`MLIRContext`用于唯一类型。下面是我们的`struct`类型的存储实例的定义，每个必需的要求都内联了详细说明：
 
 ```c++
 /// This class represents the internal storage of the Toy `StructType`.
@@ -151,7 +149,7 @@ public:
 };
 ```
 
-我们在`Toyota Dialect`构造函数中注册此类型的方式与我们处理操作的方式类似：
+我们在`Toy Dialect`构造函数中注册此类型的方式与我们处理操作的方式类似：
 
 ```c++
 ToyDialect::ToyDialect(mlir::MLIRContext *ctx)
@@ -160,11 +158,11 @@ ToyDialect::ToyDialect(mlir::MLIRContext *ctx)
 }
 ```
 
-有了这个，我们现在可以在从玩具生成MLIR时使用我们的`StructType`。有关更多详细信息，请参见Examples/toy/ch7/mlir/MLIRGen.cpp。
+有了这个，我们现在可以在从Toy生成MLIR时使用我们的`StructType`。有关更多详细信息，请参见`Examples/toy/ch7/mlir/MLIRGen.cpp`。
 
 ### 解析和打印
 
-此时，我们可以在MLIR生成和转换过程中使用我们的`StructType`，但不能输出或解析`.mlir`。为此，我们需要增加对`StructType`实例的解析和打印支持。这可以通过覆盖`Toyota Dialect`上的`parseType`和`printType`方法来实现。
+此时，我们可以在MLIR生成和转换过程中使用我们的`StructType`，但不能输出或解析`.mlir`。为此，我们需要增加对`StructType`实例的解析和打印支持。这可以通过覆盖`Toy Dialect`上的`parseType`和`printType`方法来实现。
 
 ```c++
 class ToyDialect : public mlir::Dialect {
@@ -178,7 +176,7 @@ public:
 };
 ```
 
-这些方法采用允许轻松实现必要功能的高级解析器或打印机的实例。在开始实现之前，让我们先考虑一下打印的IR中的`struct`类型所需的语法。如[MLIR语言参考](../../LangRef.md#方言类型)中所述，方言类型通常表示为：`！方言命名空间<type-data>`，在某些情况下可以使用漂亮的形式。我们的‘toy’解析器和打印机的职责是提供‘type-data’位。我们将我们的`StructType`定义为具有以下形式：
+这些方法采用允许轻松实现必要功能的高级解析器或打印类的实例。在开始实现之前，让我们先考虑一下打印的IR中的`struct`类型所需的语法。如[MLIR语言参考](../../LangRef.md#dialect-types)中所述，方言类型通常表示为：`！dialect-namespace<type-data>`，在某些情况下可以使用漂亮的形式。我们的`toy`解析器和打印类的职责是提供`type-data`位。我们将我们的`StructType`定义为具有以下形式：
 
 ```
   struct-type ::= `struct` `<` type (`,` type)* `>`
@@ -233,7 +231,7 @@ mlir::Type ToyDialect::parseType(mlir::DialectAsmParser &parser) const {
 
 #### 打印
 
-打印机的实现如下所示：
+打印类的实现如下所示：
 
 ```c++
 /// Print an instance of a type registered to the toy dialect.
@@ -299,7 +297,7 @@ def ReturnOp : Toy_Op<"return", [Terminator, HasParent<"FuncOp">]> {
 }
 ```
 
-#### 添加新的`TOI‘操作
+#### 添加新的`TOY`操作
 
 除了现有的操作之外，我们还将添加一些新的操作，这些操作将提供对`structs`的更具体的处理。
 
@@ -394,7 +392,7 @@ module {
 }
 ```
 
-我们有几个访问`toy.struct_constant`的`toy.struct_access`操作。如[第3章](CH-3.md)(FoldConstantReshape)所述，我们可以通过在操作定义上设置`hasFolder`位并提供`*Op：：fold`方法的定义来为这些`toy`操作添加文件夹。
+我们有几个访问`toy.struct_constant`的`toy.struct_access`操作。如[第3章](zh-Ch-3.md)(FoldConstantReshape)所述，我们可以通过在操作定义上设置`hasFolder`位并提供`*Op：：fold`方法的定义来为这些`toy`操作添加folder操作。
 
 ```c++
 /// Fold constants.
@@ -416,7 +414,7 @@ OpFoldResult StructAccessOp::fold(ArrayRef<Attribute> operands) {
 }
 ```
 
-为了确保MLIR在折叠我们的`to`操作时生成正确的常量操作，即`TensorType`的`ConstantOp`和`StructType`的`StructConstant`，我们需要提供方言钩子`MaterializeConstant`的覆盖。这允许通用MLIR操作在必要时为‘TOY’方言创建常量。
+为了确保MLIR在折叠我们的`Toy`操作时生成正确的常量操作，即`TensorType`的`ConstantOp`和`StructType`的`StructConstant`，我们需要提供方言钩子`MaterializeConstant`的覆盖。这允许通用MLIR操作在必要时为`TOY`方言创建常量。
 
 ```c++
 mlir::Operation *ToyDialect::materializeConstant(mlir::OpBuilder &builder,
@@ -431,7 +429,7 @@ mlir::Operation *ToyDialect::materializeConstant(mlir::OpBuilder &builder,
 }
 ```
 
-有了这一点，我们现在可以生成可以生成到LLVM的代码，而不需要对我们的管道进行任何更改。
+有了这一点，我们现在可以生成可以生成到LLVM的代码，而不需要对我们的流程进行任何更改。
 
 ```mlir
 module {
@@ -445,4 +443,4 @@ module {
 }
 ```
 
-您可以构建`toyc-ch7`并亲自试用：`toyc-ch7 test/examples/Toy/ch7/struct-codegen.toy-emit=mlir`。有关定义自定义类型的更多详细信息，请参阅[DefiningAttributesAndTypes](../DefiningAttributesAndTypes.md).
+您可以构建`toyc-ch7`并亲自试用：`toyc-ch7 test/examples/Toy/ch7/struct-codegen.toy -emit=mlir`。有关定义自定义类型的更多详细信息，请参阅[DefiningAttributesAndTypes](../DefiningAttributesAndTypes.md).

@@ -1,12 +1,10 @@
 # 第3章：高级语言特定的分析和转换
 
-[TOC]
-
 创建紧密代表输入语言语义的方言可以实现MLIR中的分析、转换和优化，这些分析、转换和优化需要高级语言信息，并且通常在语言AST上执行。例如，`clang`在C++中执行模板实例化时有一个相当复杂的[mechanism](https://clang.llvm.org/doxygen/classclang_1_1TreeTransform.html)。
 
 我们将编译器转换分为两类：局部和全局。在本章中，我们将重点介绍如何利用toy方言及其高级语义来执行在LLVM中难以实现的本地模式匹配转换。为此，我们使用MLIR的[通用DAG重写器](../../PatternRewriter.md)。
 
-有两种方法可以实现模式匹配转换：1.命令式，C++模式匹配和重写2.声明性的、基于规则的模式匹配和重写，使用表驱动的[声明性重写规则Declarative Rewrite Rules](../../DeclarativeRewrites.md)(DRR)。请注意，DRR的使用要求使用ODS定义操作，如[第2章](CH-2.md)中所述。
+有两种方法可以实现模式匹配转换：1.命令式，C++模式匹配和重写.2.声明性的、基于规则的模式匹配和重写，使用表驱动的[声明性重写规则Declarative Rewrite Rules](../../DeclarativeRewrites.md)(DRR)。请注意，DRR的使用要求使用ODS定义操作，如[第2章](zh-Ch-2.md)中所述。
 
 ## 使用C++风格的模式匹配和重写优化转置
 
@@ -206,4 +204,4 @@ module {
 
 有关声明性重写方法的更多详细信息，请参阅[表驱动声明性重写规则(DRR)](../../DeclarativeRewrites.md)。
 
-在本章中，我们了解了如何通过始终可用的钩子使用特定的核心转换。在[下一章](CH-4.md)中，我们将了解如何使用通过Interfaces更好地扩展的通用解决方案。
+在本章中，我们了解了如何通过始终可用的钩子使用特定的核心转换。在[下一章](zh-Ch-4.md)中，我们将了解如何使用通过Interfaces更好地扩展的通用解决方案。

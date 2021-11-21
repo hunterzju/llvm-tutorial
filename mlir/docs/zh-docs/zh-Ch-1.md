@@ -1,7 +1,5 @@
 # 第1章：玩具语言和AST
 
-[TOC]
-
 ## 语言
 
 本教程将用一种简单语言来说明，我们称之为“玩具”(命名很难……)。Toy是一种基于张量的语言，允许您定义函数、执行一些数学计算和打印结果。
@@ -111,4 +109,4 @@ Module:
 
 lexer的代码相当简单；所有代码都在一个头文件中：`Examples/Toy/Ch1/Include/Toy/Lexfor.h`。解析器可以在`Examples/Toy/ch1/include/toy/Parser.h`中找到，它是一个递归下降解析器。如果您不熟悉这样的词法分析器/解析器，它们与[Kaleidcope Tutorial](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html).]的前两章中详细介绍的LLVM Kaleidoscope非常相似
 
-[下一章](CH-2.md)将演示如何将此AST转换为MLIR。
+[下一章](zh-Ch-2.md)将演示如何将此AST转换为MLIR。
