@@ -157,7 +157,7 @@ DBuilder->finalize();
 
 ## 函数
 
-现在我们有了`Compile Unit`和源位置，我们可以将函数定义添加到调试信息中。因此，在`PrototypeAST：：codegen()`中，我们添加了几行代码来描述子程序的上下文，在本例中为“File”，以及函数本身的实际定义。
+现在我们有了`Compile Unit`和源位置，我们可以将函数定义添加到调试信息中。因此，在`PrototypeAST::codegen()`中，我们添加了几行代码来描述子程序的上下文，在本例中为“File”，以及函数本身的实际定义。
 
 所以上下文是这样的：
 
@@ -274,7 +274,7 @@ KSDbgInfo.emitLocation(this);
 
 ## 变量
 
-现在我们有了函数，我们需要能够打印出范围内的变量。让我们设置我们的函数参数，这样我们就可以进行适当的回溯，看看我们的函数是如何被调用的。这不是很多代码，我们通常在`FunctionAST：：codegen`中创建参数allocas时处理它。
+现在我们有了函数，我们需要能够打印出范围内的变量。让我们设置我们的函数参数，这样我们就可以进行适当的回溯，看看我们的函数是如何被调用的。这不是很多代码，我们通常在`FunctionAST::codegen`中创建参数allocas时处理它。
 
 ```c++
 // Record the function arguments in the NamedValues map.
@@ -303,7 +303,7 @@ for (auto &Arg : TheFunction->args()) {
 
 在这里，我们首先创建变量，为其提供作用域(`SP`)、名称、源位置、类型，并且由于它是参数，因此还提供参数索引。接下来，我们创建一个`lvm.dbg.declare`调用，以在IR级别指示我们在alloca中有一个变量(并且它给出变量的起始位置)，并在声明上设置作用域开始的源位置。
 
-在这一点上需要注意的一件有趣的事情是，各种调试器都有基于过去如何为它们生成代码和调试信息的假设。在这种情况下，我们需要做一些修改，以避免为函数序言生成行信息，以便调试器知道在设置断点时跳过这些指令。所以在`FunctionAST：：CodeGen`中，我们再增加几行：
+在这一点上需要注意的一件有趣的事情是，各种调试器都有基于过去如何为它们生成代码和调试信息的假设。在这种情况下，我们需要做一些修改，以避免为函数序言生成行信息，以便调试器知道在设置断点时跳过这些指令。所以在`FunctionAST::CodeGen`中，我们再增加几行：
 
 ```c++
 // Unset the location for the prologue emission (leading instructions with no
