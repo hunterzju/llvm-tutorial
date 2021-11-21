@@ -140,7 +140,7 @@ std::unique_ptr<PrototypeAST> LogErrorP(const char *Str) {
 
 ## 基本表达式解析
 
-我们从数字文字开始，因为它们是最容易处理的。对于语法中的每个产生式，我们将定义一个函数来解析该产生式（production）。对于数字文字，我们有：
+我们从数字常量开始，因为它们是最容易处理的。对于语法中的每个产生式，我们将定义一个函数来解析该产生式（production）。对于数字常量，我们有：
 
 ```c++
 /// numberexpr ::= number
