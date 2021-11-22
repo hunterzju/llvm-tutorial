@@ -5,13 +5,17 @@ llvm-tutorial部分翻译，目前初步完成了入门教程Kaleidoscope部分�
 目前文档是基于llvm-12.0.1分支构建的，工程结构如下：
 ```
 ├── LICENSE
+├── BuildingAJIT
+│   ├── markdown                       // 原版rst文档转换的markdown文档
+│   ├── rst                            // 原版rst文档
+│   └── zh-md                          // 机器翻译中文文档，!!!暂未校对
 ├── mlir
-│   ├── code                    // llvm-project/mlir/examples/toy/路径下代码
+│   ├── code                           // llvm-project/mlir/examples/toy/路径下代码
 │   ├── docs
 │   │   ├── ......
-│   │   ├── Toy                // mlir教程原版文档
-│   │   └── zh-docs            // 中文文档
-│   └── testcode                // llvm-project/mlir/test/Examples/Toy/路径下代码
+│   │   ├── Toy                       // mlir教程原版文档
+│   │   └── zh-docs                   // 中文文档
+│   └── testcode                       // llvm-project/mlir/test/Examples/Toy/路径下代码
 ├── MyFirstLanguageFrontend             // Kaleidoscope教程
 │   ├── answer                         // 官方仓库的示例代码
 │   ├── code                           // 学习过程对照实现
@@ -21,5 +25,7 @@ llvm-tutorial部分翻译，目前初步完成了入门教程Kaleidoscope部分�
 │       ├── rst                        // 原版rst文档
 │       └── zh-md                      // 翻译后中文markdown文档
 └── README.md
-
 ```
+
+## 致谢
+感谢@[darionyaphet](https://github.com/darionyaphet)对项目的贡献。
