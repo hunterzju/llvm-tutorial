@@ -157,14 +157,9 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 ../../examples/Kaleidoscope/BuildingAJIT/Chapter1/KaleidoscopeJIT.h
 ```
 
-[^1]：实际上我们使用的是精简版的KaleidoscopeJIT，它使
-简化假设：符号不能重新定义。这将使
-在REPL中重新定义符号是不可能的，但会使我们的
-符号查找逻辑更简单。重新引入对符号的支持
-重新定义留给读者作为练习。(
-原始教程中使用的KaleidoscopeJIT.h将对您有帮助
-参考文献)。
+[^1]：实际上我们使用的是KaleidoscopeJIT的精简版本，它做了一个简化的假设：符号不能重新定义。这将使重新定义REPL中的符号变得不可能，但将使我们的符号查找逻辑变得更简单。重新引入对符号重新定义的支持留给读者作为练习。(原始教程中使用的KaleidoscopeJIT.h将是有用的参考)。
 
+[^2]:
     | File                     | Reason for inclusion                      |
     +==========================+===========================================+
     | > JITSymbol.h            | Defines the lookup result type            |

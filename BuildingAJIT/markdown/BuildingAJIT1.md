@@ -157,13 +157,7 @@ Here is the code:
 ../../examples/Kaleidoscope/BuildingAJIT/Chapter1/KaleidoscopeJIT.h
 ```
 
-[^1]: Actually we use a cut-down version of KaleidoscopeJIT that makes a
-    simplifying assumption: symbols cannot be re-defined. This will make
-    it impossible to re-define symbols in the REPL, but will make our
-    symbol lookup logic simpler. Re-introducing support for symbol
-    redefinition is left as an exercise for the reader. (The
-    KaleidoscopeJIT.h used in the original tutorials will be a helpful
-    reference).
+[^1]: Actually we use a cut-down version of KaleidoscopeJIT that makes a simplifying assumption: symbols cannot be re-defined. This will make it impossible to re-define symbols in the REPL, but will make our symbol lookup logic simpler. Re-introducing support for symbol redefinition is left as an exercise for the reader. (The KaleidoscopeJIT.h used in the original tutorials will be a helpful reference).
 
 [^2]: +--------------------------+-------------------------------------------+
     | File                     | Reason for inclusion                      |
