@@ -18,7 +18,7 @@ LLVM具有对交叉编译的原生支持。您可以编译到当前计算机的�
 
 运行此命令可能会在您的计算机上显示一些不同的内容，因为您可能正在使用与我不同的架构或操作系统。
 
-幸运的是，我们不需要硬编码目标三元组来瞄准当前机器，LLVM提供了`sys：：getDefaultTargetTriple`，它返回当前机器的目标三元组。
+幸运的是，我们不需要硬编码目标三元组来瞄准当前机器，LLVM提供了`sys::getDefaultTargetTriple`，它返回当前机器的目标三元组。
 
 ```c++
 auto TargetTriple = sys::getDefaultTargetTriple();

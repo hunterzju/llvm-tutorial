@@ -162,7 +162,7 @@ Function *PrototypeAST::codegen() {
 
 此代码将大量功能打包到几行中。首先请注意，此函数返回”function\*”，而不是”value\*”。因为”Prototype”实际上谈论的是函数的外部接口(而不是表达式计算的值)，所以当codegen‘d时，它返回与之对应的LLVM函数是有意义的。
 
-对`FunctionType::get`的调用创建了应该用于给定原型的`FunctionType`。因为Kaleidoscope中的所有函数参数都是DOUBLE类型，所以第一行创建了一个”N”LLVM DOUBLE类型的向量。然后使用`Functiontype：：get`方法创建一个函数类型，该函数类型以”N”双精度值作为参数，返回一个双精度值作为结果，并且不是vararg(false参数表示这一点)。请注意，LLVM中的类型与常量一样是唯一的，因此您不会“新建”类型，而是“获取”它。
+对`FunctionType::get`的调用创建了应该用于给定原型的`FunctionType`。因为Kaleidoscope中的所有函数参数都是DOUBLE类型，所以第一行创建了一个”N”LLVM DOUBLE类型的向量。然后使用`Functiontype::get`方法创建一个函数类型，该函数类型以”N”双精度值作为参数，返回一个双精度值作为结果，并且不是vararg(false参数表示这一点)。请注意，LLVM中的类型与常量一样是唯一的，因此您不会“新建”类型，而是“获取”它。
 
 上面的最后一行实际上创建了与原型相对应的IR函数。这指示要使用的类型、链接和名称，以及要插入的模块。”[外部链接](https://llvm.org/docs/LangRef.html#linkage)”表示函数可以在当前模块外部定义和/或可以由模块外部的函数调用。传入的名称是用户指定的名称：由于指定了”`TheModule`”，所以该名称注册在”`TheModule`”的符号表中。
 
@@ -194,7 +194,7 @@ Function *FunctionAST::codegen() {
     return (Function*)LogErrorV("Function cannot be redefined.");
 ```
 
-对于函数定义，我们首先在模块的符号表中搜索此函数的现有版本(如果已经使用‘extern’语句创建了一个版本)。如果Module：：getFunction返回NULL，则不存在以前的版本，因此我们将从原型中编码生成一个。在任何一种情况下，我们都希望在开始之前断言函数为空(即还没有主体)。
+对于函数定义，我们首先在模块的符号表中搜索此函数的现有版本(如果已经使用‘extern’语句创建了一个版本)。如果Module::getFunction返回NULL，则不存在以前的版本，因此我们将从原型中编码生成一个。在任何一种情况下，我们都希望在开始之前断言函数为空(即还没有主体)。
 
 ```c++
 // Create a new basic block to start insertion into.
@@ -207,7 +207,7 @@ for (auto &Arg : TheFunction->args())
   NamedValues[Arg.getName()] = &Arg;
 ```
 
-现在我们到了设置`Builder`的地方。第一行创建一个新的[basic block](http://en.wikipedia.org/wiki/Basic_block)”插入到`TheFunction`中。然后第二行告诉构建器，应该在新的`Basic block`的末尾插入新的指令。LLVM中的基本块是定义[控制流Graph](http://en.wikipedia.org/wiki/Control_flow_graph)的函数的重要部分.因为我们没有任何控制流，所以我们的函数此时将只包含一个block。我们将在[第5章](zh-LangImpl05.md)中解决这个问题：)。
+现在我们到了设置`Builder`的地方。第一行创建一个新的[basic block](http://en.wikipedia.org/wiki/Basic_block)”插入到`TheFunction`中。然后第二行告诉构建器，应该在新的`Basic block`的末尾插入新的指令。LLVM中的基本块是定义[控制流Graph](http://en.wikipedia.org/wiki/Control_flow_graph)的函数的重要部分。因为我们没有任何控制流，所以我们的函数此时将只包含一个block。我们将在[第5章](zh-LangImpl05.md)中解决这个问题：)。
 
 接下来，我们将函数参数添加到NamedValues映射中(在其清除之后)，以便`VariableExprAST`节点可以访问它们。
 
@@ -228,13 +228,13 @@ if (Value *RetVal = Body->codegen()) {
 ```c++
 // Error reading body, remove function.
 TheFunction->eraseFromParent();
-return nullptr;
+  return nullptr;
 }
 ```
 
 这里剩下的唯一部分就是错误情况的处理。为简单起见，我们只需使用`eraseFromParent`方法删除生成的函数即可处理此问题。这允许用户重新定义他们以前错误键入的函数：如果我们不删除它，它将与函数体一起存在于符号表中，防止将来重新定义。
 
-不过，此代码确实有一个缺陷：如果`FunctionAST：：codegen()`方法找到一个现有的IR函数，它不会根据定义自己的原型验证其签名。这意味着较早的‘extern’声明将优先于函数定义的签名，这可能会导致codegen失败，例如，如果函数参数命名不同。有很多方法可以修复此缺陷，看看您能想到什么！下面是一个测试用例：
+不过，此代码确实有一个缺陷：如果`FunctionAST::codegen()`方法找到一个现有的IR函数，它不会根据定义自己的原型验证其签名。这意味着较早的‘extern’声明将优先于函数定义的签名，这可能会导致codegen失败，例如，如果函数参数命名不同。有很多方法可以修复此缺陷，看看您能想到什么！下面是一个测试用例：
 
 ```
     extern foo(a);     # ok, defines foo.

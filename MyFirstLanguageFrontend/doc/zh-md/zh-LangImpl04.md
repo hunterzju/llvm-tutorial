@@ -57,7 +57,7 @@
 
 ## LLVM优化通过
 
-> 警告：由于已过渡到新的PassManager基础结构，因此本教程基于`llvm：：Legacy：：FunctionPassManager`(可以在[LegacyPassManager.h](https://llvm.org/doxygen/classllvm_1_1legacy_1_1FunctionPassManager.html)中找到).在完成PASS管理器过渡之前，应一直使用上述PassManager。
+> 警告：由于已过渡到新的PassManager基础结构，因此本教程基于`llvm::Legacy::FunctionPassManager`(可以在[LegacyPassManager.h](https://llvm.org/doxygen/classllvm_1_1legacy_1_1FunctionPassManager.html)中找到).在完成PASS管理器过渡之前，应一直使用上述PassManager。
 
 LLVM提供了许多优化通道，它们可以做很多不同的事情，有不同的权衡。与其他系统不同的是，LLVM不会错误地认为一组优化对所有语言和所有情况都是正确的。LLVM允许编译器实现者完全决定使用什么优化、以什么顺序和在什么情况下使用。
 
@@ -322,7 +322,7 @@ Function *FunctionAST::codegen() {
     return nullptr;
 ```
 
-要实现这一点，我们将从添加一个新的全局`FunctionProtos`开始，它保存每个函数的最新原型。我们还将添加一个方便的方法`getFunction()`来替换对`TheModule->getFunction()`的调用。我们的便捷方法在`TheModule`中搜索现有的函数声明，如果没有找到，则退回到从FunctionProtos生成新的声明。在`CallExprAST：：codegen()`中，我们只需要替换对`TheModule->getFunction()`的调用。在`FunctionAST：：codegen()`中，我们需要先更新FunctionProtos映射，然后再调用`getFunction()`。完成此操作后，我们始终可以在当前模块中为任何先前声明的函数获取函数声明。
+要实现这一点，我们将从添加一个新的全局`FunctionProtos`开始，它保存每个函数的最新原型。我们还将添加一个方便的方法`getFunction()`来替换对`TheModule->getFunction()`的调用。我们的便捷方法在`TheModule`中搜索现有的函数声明，如果没有找到，则退回到从FunctionProtos生成新的声明。在`CallExprAST::codegen()`中，我们只需要替换对`TheModule->getFunction()`的调用。在`FunctionAST::codegen()`中，我们需要先更新FunctionProtos映射，然后再调用`getFunction()`。完成此操作后，我们始终可以在当前模块中为任何先前声明的函数获取函数声明。
 
 我们还需要更新HandleDefinition和HandleExtern：
 

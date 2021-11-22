@@ -222,7 +222,7 @@ Value *VariableExprAST::codegen() {
 }
 ```
 
-如您所见，这非常简单。现在我们需要更新定义变量的内容来设置alloca。我们将从`ForExprAST：：codegen()`开始(未删节的代码参见[完整代码清单](#Id1))：
+如您所见，这非常简单。现在我们需要更新定义变量的内容来设置alloca。我们将从`ForExprAST::codegen()`开始(未删节的代码参见[完整代码清单](#Id1))：
 
 ```c++
 Function *TheFunction = Builder.GetInsertBlock()->getParent();
@@ -278,7 +278,7 @@ Function *FunctionAST::codegen() {
     ...
 ```
 
-对于每个参数，我们创建一个Alloca，将函数的输入值存储到Alloca中，并将Alloca注册为参数的内存位置。此方法由`FunctionAST：：codegen()`在为函数设置entry Block后立即调用。
+对于每个参数，我们创建一个Alloca，将函数的输入值存储到Alloca中，并将Alloca注册为参数的内存位置。此方法由`FunctionAST::codegen()`在为函数设置entry Block后立即调用。
 
 最后缺少的部分是添加mem2reg pass，它允许我们再次获得良好的编解码器：
 
