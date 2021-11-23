@@ -615,4 +615,4 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 
 以下是代码：
 
-[下一步：扩展语言：可变变量/SSA构造](zh-LangImpl07.html)
+[下一步：扩展语言：可变变量/SSA构造](zh-LangImpl07.md)
