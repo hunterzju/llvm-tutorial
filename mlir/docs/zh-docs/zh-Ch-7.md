@@ -54,7 +54,7 @@ def main() {
 
 ##### 定义存储类
 
-类型存储对象包含构造和唯一类型实例所需的所有数据。派生存储类必须继承自基本`mlir：：TypeStorage`，并提供一组别名和钩子，供`MLIRContext`用于唯一类型。下面是我们的`struct`类型的存储实例的定义，每个必需的要求都内联了详细说明：
+类型存储对象包含构造和唯一类型实例所需的所有数据。派生存储类必须继承自基本`mlir::TypeStorage`，并提供一组别名和钩子，供`MLIRContext`用于唯一类型。下面是我们的`struct`类型的存储实例的定义，每个必需的要求都内联了详细说明：
 
 ```c++
 /// This class represents the internal storage of the Toy `StructType`.
@@ -392,7 +392,7 @@ module {
 }
 ```
 
-我们有几个访问`toy.struct_constant`的`toy.struct_access`操作。如[第3章](zh-Ch-3.md)(FoldConstantReshape)所述，我们可以通过在操作定义上设置`hasFolder`位并提供`*Op：：fold`方法的定义来为这些`toy`操作添加folder操作。
+我们有几个访问`toy.struct_constant`的`toy.struct_access`操作。如[第3章](zh-Ch-3.md)(FoldConstantReshape)所述，我们可以通过在操作定义上设置`hasFolder`位并提供`*Op::fold`方法的定义来为这些`toy`操作添加folder操作。
 
 ```c++
 /// Fold constants.

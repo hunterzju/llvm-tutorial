@@ -111,7 +111,7 @@ class ToyDialect : public mlir::Dialect {
  %4 = "toy.constant"() {value = dense<1.0> : tensor<2x3xf64>} : () -> tensor<2x3xf64>
 ```
 
-该操作的操作数为零，[dense elements](../../LangRef.md#dense-elements-attribute)属性名为`value`，返回[TensorType](../../LangRef.md#tensor-type)的单个结果。操作继承自[CRTP](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern)`mlir：：op`类，该类还需要一些可选的[*特性Traits*](../../Traits.md)来自定义其行为。这些特征可以提供额外的访问器、验证等功能。
+该操作的操作数为零，[dense elements](../../LangRef.md#dense-elements-attribute)属性名为`value`，返回[TensorType](../../LangRef.md#tensor-type)的单个结果。操作继承自[CRTP](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern)`mlir::op`类，该类还需要一些可选的[*特性Traits*](../../Traits.md)来自定义其行为。这些特征可以提供额外的访问器、验证等功能。
 
 ```c++
 class ConstantOp : public mlir::Op<ConstantOp,
@@ -187,11 +187,11 @@ void processConstantOp(mlir::Operation *operation) {
 
 ### 使用操作定义规范(ODS)框架
 
-MLIR除了专门化`mlir：：op`C++模板外，还支持声明式定义操作。这是通过[操作定义规范](../../OpDefinitions.md)框架实现的。关于操作的事实被简明地指定到TableGen记录中，该记录将在编译时展开为等效的`mlir：：Op`专用C++模板。考虑到面对C++API更改时的简洁性、简明性和一般稳定性，使用ODS框架是在MLIR中定义操作的理想方式。
+MLIR除了专门化`mlir::op`C++模板外，还支持声明式定义操作。这是通过[操作定义规范](../../OpDefinitions.md)框架实现的。关于操作的事实被简明地指定到TableGen记录中，该记录将在编译时展开为等效的`mlir::Op`专用C++模板。考虑到面对C++API更改时的简洁性、简明性和一般稳定性，使用ODS框架是在MLIR中定义操作的理想方式。
 
 让我们看看如何定义ConstantOp的ODS等效项：
 
-要做的第一件事是定义一个指向我们用C++定义的toy方言的链接。它用于将我们将定义的所有操作链接到我们的方言：
+要做的第一件事是定义一个指向我们用C++定义的toy方言的链接。它用于将我们定义的所有操作链接到我们的方言：
 
 ```tablegen
 // Provide a definition of the 'toy' dialect in the ODS framework so that we
@@ -220,7 +220,7 @@ class Toy_Op<string mnemonic, list<OpTrait> traits = []> :
 
 定义了所有的初始部分后，我们可以开始定义常量操作。
 
-我们通过继承上面的“Toy_Op”基类来定义toy操作。在这里，我们提供了助记符和操作的特征列表。这里的[mnemonic](../../OpDefinitions.md#operation-name)与`ConstantOp：：getOperationName`中给出的没有方言前缀`toy.`匹配。我们的C++定义中缺少`ZeroOperands`和`OneResult`特性；这些特性将根据我们稍后定义的`arguments`和`Results`字段自动推断出来。
+我们通过继承上面的“Toy_Op”基类来定义toy操作。在这里，我们提供了助记符和操作的特征列表。这里的[mnemonic](../../OpDefinitions.md#operation-name)与`ConstantOp::getOperationName`中给出的没有方言前缀`toy.`匹配。我们的C++定义中缺少`ZeroOperands`和`OneResult`特性；这些特性将根据我们稍后定义的`arguments`和`Results`字段自动推断出来。
 
 ```tablegen
 def ConstantOp : Toy_Op<"constant"> {
@@ -251,7 +251,7 @@ def ConstantOp : Toy_Op<"constant"> {
 }
 ```
 
-通过给参数或结果命名，如`$value`，ODS会自动生成匹配的访问器：`DenseElementsAttr ConstantOp：：value()`。
+通过给参数或结果命名，如`$value`，ODS会自动生成匹配的访问器：`DenseElementsAttr ConstantOp::value()`。
 
 #### 添加文档
 
@@ -283,7 +283,7 @@ def ConstantOp : Toy_Op<"constant"> {
 
 #### 验证操作语义
 
-至此，我们已经介绍了原始C++操作定义的大部分。下一个要定义的部分是验证器。幸运的是，与命名访问器非常相似，ODS框架将根据我们给出的约束自动生成大量必要的验证逻辑。这意味着我们不需要验证返回类型的结构，甚至不需要验证输入属性`value`。在许多情况下，对于ODS operations来说不需要额外验证。要添加其他验证逻辑，operation可以重载[`verifier`](../../OpDefinitions.md#custom-verifier-code)字段。`verifier`字段允许定义一个C++代码blob，它将作为`ConstantOp：：verify`的一部分运行。此BLOB可以假设该操作的所有其他不变量都已经过验证：
+至此，我们已经介绍了原始C++操作定义的大部分。下一个要定义的部分是验证器。幸运的是，与命名访问器非常相似，ODS框架将根据我们给出的约束自动生成大量必要的验证逻辑。这意味着我们不需要验证返回类型的结构，甚至不需要验证输入属性`value`。在许多情况下，对于ODS operations来说不需要额外验证。要添加其他验证逻辑，operation可以重载[`verifier`](../../OpDefinitions.md#custom-verifier-code)字段。`verifier`字段允许定义一个C++代码blob，它将作为`ConstantOp::verify`的一部分运行。此BLOB可以假设该操作的所有其他不变量都已经过验证：
 
 ```tablegen
 def ConstantOp : Toy_Op<"constant"> {

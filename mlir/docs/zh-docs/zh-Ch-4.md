@@ -255,7 +255,7 @@ void MulOp::inferShapes() { getResult().setType(getOperand(0).getType()); }
 
 此时，每个必要的toy操作都提供了一种机制来推断它们的输出形状。ShapeInferencePass是一个FunctionPass：它将在每个函数上独立运行。MLIR还支持在任何孤立操作(即其他类似函数的操作)上运行的通用[OperationPasses](../../PassManagement.md#operation-pass)，但这里我们的模块只包含函数，因此不需要对所有操作进行泛化。
 
-通过创建一个继承自`mlir：：FunctionPass`的类并覆盖`runOnFunction()`方法来实现这样的传递。
+通过创建一个继承自`mlir::FunctionPass`的类并覆盖`runOnFunction()`方法来实现这样的传递。
 
 ```c++
 class ShapeInferencePass

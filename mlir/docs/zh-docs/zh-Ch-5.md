@@ -40,7 +40,7 @@ void ToyToAffineLoweringPass::runOnFunction() {
 }
 ```
 
-在上面，我们首先将Toy方言设置为非法，然后将打印操作设置为合法。我们可以反过来做这件事。单个操作始终优先于(更通用的)方言定义，因此顺序无关紧要。详见`ConversionTarget：：getOpInfo`。
+在上面，我们首先将Toy方言设置为非法，然后将打印操作设置为合法。我们可以反过来做这件事。单个操作始终优先于(更通用的)方言定义，因此顺序无关紧要。详见`ConversionTarget::getOpInfo`。
 
 ## 转换模式
 

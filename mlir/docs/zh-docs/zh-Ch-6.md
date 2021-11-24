@@ -236,7 +236,7 @@ int dumpLLVMIR(mlir::ModuleOp module) {
 
 ### 设置JIT
 
-可以使用`mlir：：ExecutionEngine`基础设施设置JIT来运行包含LLVM方言的模块。这是一个围绕LLVM的JIT的实用程序包装，接受`.mlir`作为输入。设置JIT的完整代码清单可以在`ch6/toyc.cpp`中的`runJit()`函数中找到：
+可以使用`mlir::ExecutionEngine`基础设施设置JIT来运行包含LLVM方言的模块。这是一个围绕LLVM的JIT的实用程序包装，接受`.mlir`作为输入。设置JIT的完整代码清单可以在`ch6/toyc.cpp`中的`runJit()`函数中找到：
 
 ```c++
 int runJit(mlir::ModuleOp module) {

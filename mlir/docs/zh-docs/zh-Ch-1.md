@@ -1,8 +1,8 @@
-# 第1章：玩具语言和AST
+# 第1章：Toy语言和AST
 
 ## 语言
 
-本教程将用一种简单语言来说明，我们称之为“玩具”(命名很难……)。Toy是一种基于张量的语言，允许您定义函数、执行一些数学计算和打印结果。
+本教程将用一种简单语言来说明，我们称之为“Toy”(命名很难……)。Toy是一种基于张量的语言，允许您定义函数、执行一些数学计算和打印结果。
 
 考虑到我们希望保持简单，编码生成将被限制为秩<=2的张量，并且Toy中唯一的数据类型是64位浮点类型(在C中也称为“DOUBLE”)。因此，所有值都是隐式双精度的，‘Values`是不可变的(即，每个操作都返回一个新分配的值)，并且释放是自动管理的。但长篇大论已经足够了；没有什么比通过一个例子来更好地理解更好的了：
 
@@ -105,8 +105,8 @@ Module:
     } // Block
 ```
 
-您在`Examples/Toy/Ch1/`目录中使用示例重现此结果；尝试运行`path/to/build/bin/toyc-ch1test/Examples/Toy/Ch1/ast.toy -emit=ast`。
+您在`Examples/Toy/Ch1/`目录中使用示例重现此结果；尝试运行`path/to/build/bin/toyc-ch1 test/Examples/Toy/Ch1/ast.toy -emit=ast`。
 
-lexer的代码相当简单；所有代码都在一个头文件中：`Examples/Toy/Ch1/Include/Toy/Lexfor.h`。解析器可以在`Examples/Toy/ch1/include/toy/Parser.h`中找到，它是一个递归下降解析器。如果您不熟悉这样的词法分析器/解析器，它们与[Kaleidcope Tutorial](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html).]的前两章中详细介绍的LLVM Kaleidoscope非常相似
+lexer的代码相当简单；所有代码都在一个头文件中：`Examples/Toy/Ch1/Include/Toy/lexer.h`。解析器可以在`Examples/Toy/ch1/include/toy/Parser.h`中找到，它是一个递归下降解析器。如果您不熟悉这样的词法分析器/解析器，它们与[Kaleidcope Tutorial](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html)的前两章中详细介绍的LLVM Kaleidoscope非常相似
 
 [下一章](zh-Ch-2.md)将演示如何将此AST转换为MLIR。
