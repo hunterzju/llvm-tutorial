@@ -10,7 +10,7 @@
 
 **示例代码已经更新，可以使用了。一旦API的波动平息下来，文本将会更新。**
 
-欢迎学习\“在LLVM中构建基于ORC的JIT\”教程的第3章。本章讨论惰性JITing，并向您展示如何通过添加[第2章](BuildingAJIT2.md)中的JIT的ORC CompileOnDemand层来启用它。
+欢迎学习\“在LLVM中构建基于ORC的JIT\”教程的第3章。本章讨论惰性JITing，并向您展示如何通过添加[第2章](zh-BuildingAJIT2.md)中的JIT的ORC CompileOnDemand层来启用它。
 
 ## 懒惰编译
 * * *
@@ -46,7 +46,7 @@ public:
   using ModuleHandle = decltype(CODLayer)::ModuleHandleT;
 ```
 
-首先，我们需要包括CompileOnDemandLayer.h头，然后向我们的类添加两个新成员：std：：Unique\_ptr\<JITCompileCallbackManager\>和CompileOnDemandLayer。CompileOnDemandLayer使用CompileCallbackManager成员创建每个函数所需的编译回调。
+首先，我们需要包括CompileOnDemandLayer.h头，然后向我们的类添加两个新成员：std::Unique\_ptr\<JITCompileCallbackManager\>和CompileOnDemandLayer。CompileOnDemandLayer使用CompileCallbackManager成员创建每个函数所需的编译回调。
 
 ```c++
 KaleidoscopeJIT()
@@ -115,4 +115,4 @@ clang++ -g toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core o
 ../../examples/Kaleidoscope/BuildingAJIT/Chapter3/KaleidoscopeJIT.h
 ```
 
-[下一步：极度懒惰\--直接从AST使用JIT的编译回调](BuildingAJIT4.md)
+[下一步：极度懒惰\--直接从AST使用JIT的编译回调](zh-BuildingAJIT4.md)
