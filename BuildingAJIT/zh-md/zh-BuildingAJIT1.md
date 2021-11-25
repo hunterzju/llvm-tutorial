@@ -8,7 +8,7 @@
 
 **第3章至第5章中的示例代码将编译并运行，但尚未更新**
 
-欢迎学习\“在LLVM中构建基于ORC的JIT\”教程的第1章。本教程贯穿使用LLVM的按请求编译(ORC)API的JIT编译器的实现过程，首先介绍[使用LLVM实现语言](LangImpl01.html)教程中使用的KaleidoscopeJIT类的简化版本，然后介绍并发编译、优化、延迟编译和远程执行等新特性。
+欢迎学习`在LLVM中构建基于ORC的JIT`教程的第1章。本教程贯穿使用LLVM的按请求编译(ORC)API的JIT编译器的实现过程，首先介绍[使用LLVM实现语言](LangImpl01.html)教程中使用的KaleidoscopeJIT类的简化版本，然后介绍并发编译、优化、延迟编译和远程执行等新特性。
 
 本教程的目标是向您介绍LLVM的ORC JIT API，展示这些API如何与LLVM的其他部分交互，并教您如何重新组合它们来构建适合您的用例的自定义JIT。
 
@@ -20,7 +20,7 @@
 - [第4章](zh-BuildingAJIT4.html)：通过将按需编译层替换为直接使用ORC编译回调API以将IR生成推迟到调用函数的定制层，来改进JIT的惰性。
 - [第5章](zh-BuildingAJIT5.html)：使用JIT远程API将JITing代码添加到权限降低的远程进程中。
 
-为了为我们的JIT提供输入，我们将使用\“在LLVM教程中实现语言\”的[第7章](LangImpl07.html)中略微修改的万花筒REPL版本。
+为了为我们的JIT提供输入，我们将使用`在LLVM教程中实现语言`的[第7章](LangImpl07.html)中略微修改的万花筒REPL版本。
 
 最后，关于API生成：ORC是LLVM JIT API的第三代。在此之前是MCJIT，在此之前是遗留的JIT(现已删除)。这些教程不假定您有使用这些早期API的任何经验，但熟悉它们的读者会看到许多熟悉的元素。在适当的情况下，我们将明确说明与早期API的这种联系，以帮助从它们过渡到ORC的人们。
 
@@ -94,7 +94,7 @@ public:
 
 我们的类从六个成员变量开始：ExecutionSession成员`ES`，它为我们运行的JIT\‘d代码(包括字符串池、全局互斥和错误报告工具)提供上下文；RTDyldObjectLinkingLayer，`ObjectLayer`，它可以用来向我们的JIT添加对象文件(尽管我们不会直接使用它)；IRCompileLayer，`CompileLayer`，它可以用来添加LLVM ModLayer`
 
-接下来，我们有一个类构造函数，它接受IRCompiler将使用的JITTargetMachineBuilder\`，以及我们将用来初始化DL成员的`DataLayout‘。构造函数首先初始化ObjectLayer。ObjectLayer需要一个对ExecutionSession的引用，以及一个将为添加的每个模块构建JIT内存管理器的函数对象(JIT内存管理器管理内存分配、内存权限和JIT代码的异常处理程序的注册)。为此，我们使用了一个返回SectionMemoryManager的lambda，这是一个现成的实用程序，它提供了本章所需的所有基本内存管理功能。接下来，我们初始化CompileLayer。CompileLayer需要三样东西：(1)对ExecutionSession的引用，(2)对对象层的引用，以及(3)用于执行从IR到目标文件的实际编译的编译器实例。我们使用现成的ConcurrentIRCompiler实用程序作为编译器，它是使用此构造函数的JITTargetMachineBuilder参数构造的。ConcurrentIRCompiler实用程序将根据编译需要使用JITTargetMachineBuilder构建llvm TargetMachines(不是线程安全的)。之后，我们分别使用输入的DataLayout、ExecutionSession和DL成员以及新的默认构造的LLVMContext初始化我们的支持成员：`DL`、`Mangler`和`Ctx`。既然我们的成员已经初始化，那么剩下的一件事就是调整我们将在其中存储代码的*JITDylib*的配置。我们希望修改此dylib，使其不仅包含添加到其中的符号，还包含REPL过程中的符号。为此，我们使用the`DynamicLibrarySearchGenerator::GetForCurrentProcess`方法附加一个`DynamicLibrarySearchGenerator`实例。
+接下来，我们有一个类构造函数，它接受IRCompiler将使用的`JITTargetMachineBuilder`，以及我们将用来初始化DL成员的`DataLayout`。构造函数首先初始化ObjectLayer。ObjectLayer需要一个对ExecutionSession的引用，以及一个将为添加的每个模块构建JIT内存管理器的函数对象(JIT内存管理器管理内存分配、内存权限和JIT代码的异常处理程序的注册)。为此，我们使用了一个返回SectionMemoryManager的lambda，这是一个现成的实用程序，它提供了本章所需的所有基本内存管理功能。接下来，我们初始化CompileLayer。CompileLayer需要三样东西：(1)对ExecutionSession的引用，(2)对对象层的引用，以及(3)用于执行从IR到目标文件的实际编译的编译器实例。我们使用现成的ConcurrentIRCompiler实用程序作为编译器，它是使用此构造函数的JITTargetMachineBuilder参数构造的。ConcurrentIRCompiler实用程序将根据编译需要使用JITTargetMachineBuilder构建llvm TargetMachines(不是线程安全的)。之后，我们分别使用输入的DataLayout、ExecutionSession和DL成员以及新的默认构造的LLVMContext初始化我们的支持成员：`DL`、`Mangler`和`Ctx`。既然我们的成员已经初始化，那么剩下的一件事就是调整我们将在其中存储代码的*JITDylib*的配置。我们希望修改此dylib，使其不仅包含添加到其中的符号，还包含REPL过程中的符号。为此，我们使用the`DynamicLibrarySearchGenerator::GetForCurrentProcess`方法附加一个`DynamicLibrarySearchGenerator`实例。
 
 ```c++
 static Expected<std::unique_ptr<KaleidoscopeJIT>> Create() {

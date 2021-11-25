@@ -6,7 +6,7 @@
 ## 第四章绪论
 * * *
 
-欢迎学习\“在LLVM中构建基于ORC的JIT\”教程的第4章。本章介绍自定义MaterializationUnits和Layers，以及Lazy Reexports API。这些将一起用于将[第3章](zh-BuildingAJIT3.html)中的CompileOnDemandLayer替换为直接来自万花筒AST的自定义延迟JITing方案。
+欢迎学习`在LLVM中构建基于ORC的JIT`教程的第4章。本章介绍自定义MaterializationUnits和Layers，以及Lazy Reexports API。这些将一起用于将[第3章](zh-BuildingAJIT3.html)中的CompileOnDemandLayer替换为直接来自万花筒AST的自定义延迟JITing方案。
 
 **待完成的工作：**
 
