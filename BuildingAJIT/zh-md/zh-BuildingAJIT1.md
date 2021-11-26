@@ -8,7 +8,7 @@
 
 **第3章至第5章中的示例代码将编译并运行，但尚未更新**
 
-欢迎学习`在LLVM中构建基于ORC的JIT`教程的第1章。本教程贯穿使用LLVM的按请求编译(ORC)API的JIT编译器的实现过程，首先介绍[使用LLVM实现语言](LangImpl01.html)教程中使用的KaleidoscopeJIT类的简化版本，然后介绍并发编译、优化、延迟编译和远程执行等新特性。
+欢迎学习`在LLVM中构建基于ORC的JIT`教程的第1章。本教程贯穿使用LLVM的按请求编译(ORC)API的JIT编译器的实现过程，首先介绍[使用LLVM实现语言](../../MyFirstLanguageFrontend/doc/zh-md/zh-LangImpl01.md)教程中使用的KaleidoscopeJIT类的简化版本，然后介绍并发编译、优化、延迟编译和远程执行等新特性。
 
 本教程的目标是向您介绍LLVM的ORC JIT API，展示这些API如何与LLVM的其他部分交互，并教您如何重新组合它们来构建适合您的用例的自定义JIT。
 
@@ -20,7 +20,7 @@
 - [第4章](zh-BuildingAJIT4.html)：通过将按需编译层替换为直接使用ORC编译回调API以将IR生成推迟到调用函数的定制层，来改进JIT的惰性。
 - [第5章](zh-BuildingAJIT5.html)：使用JIT远程API将JITing代码添加到权限降低的远程进程中。
 
-为了为我们的JIT提供输入，我们将使用`在LLVM教程中实现语言`的[第7章](LangImpl07.html)中略微修改的万花筒REPL版本。
+为了为我们的JIT提供输入，我们将使用`在LLVM教程中实现语言`的[第7章](../../MyFirstLanguageFrontend/doc/zh-md/zh-LangImpl07.md)中略微修改的万花筒REPL版本。
 
 最后，关于API生成：ORC是LLVM JIT API的第三代。在此之前是MCJIT，在此之前是遗留的JIT(现已删除)。这些教程不假定您有使用这些早期API的任何经验，但熟悉它们的读者会看到许多熟悉的元素。在适当的情况下，我们将明确说明与早期API的这种联系，以帮助从它们过渡到ORC的人们。
 
@@ -30,9 +30,10 @@
 即时编译器的目的是根据需要“在飞翔”编译代码，而不是像传统编译器那样提前将整个程序编译到磁盘上。为了支持这一目标，我们最初的基本JIT API将只有两个函数：
 
 `Error addModule(std::Unique_ptr<Module>M)`：使给定的IR模块可供执行。
+
 `Expted<JITEvaluatedSymbol>lookup()`：搜索指向已添加到JIT的符号(函数或变量)的指针。
 
-此API的一个基本用例是从模块执行\‘main\’函数，如下所示：
+此API的一个基本用例是从模块执行`main`函数，如下所示：
 
 ```c++
 JIT J;
@@ -46,9 +47,9 @@ int Result = Main();
 ## 万花筒JIT-万花筒JIT
 * * *
 
-在上一节中，我们描述了我们的API，现在我们研究它的一个简单实现：[使用LLVM实现语言](LangImpl01.html)教程中使用的KaleidoscopeJIT类[^1]。我们将使用该教程[第7章](LangImpl07.html)中的REPL代码为我们的JIT提供输入：每次用户输入表达式时，REPL都会将包含该表达式代码的新IR模块添加到JIT中。如果表达式是像`1+1`或`sin(X)`这样的顶级表达式，则REPL还将使用我们的JIT类的查找方法查找并执行该表达式的代码。在本教程后面的章节中，我们将修改REPL以启用与我们的JIT类的新交互，但现在我们将把这个设置视为理所当然，并将注意力集中在JIT本身的实现上。
+在上一节中，我们描述了我们的API，现在我们研究它的一个简单实现：[使用LLVM实现语言](../../MyFirstLanguageFrontend/doc/zh-md/zh-LangImpl01.md)教程中使用的KaleidoscopeJIT类[^1]。我们将使用该教程[第7章](../../MyFirstLanguageFrontend/doc/zh-md/zh-LangImpl07.md)中的REPL代码为我们的JIT提供输入：每次用户输入表达式时，REPL都会将包含该表达式代码的新IR模块添加到JIT中。如果表达式是像`1+1`或`sin(X)`这样的顶级表达式，则REPL还将使用我们的JIT类的查找方法查找并执行该表达式的代码。在本教程后面的章节中，我们将修改REPL以启用与我们的JIT类的新交互，但现在我们将把这个设置视为理所当然，并将注意力集中在JIT本身的实现上。
 
-我们的KaleidoscopeJIT类在KaleidoscopeJIT.h头中定义。在通常包括Guard和\#includes[^2](+-+-+)，之后，我们得到了我们类的定义：
+我们的KaleidoscopeJIT类在KaleidoscopeJIT.h头中定义。在通常包括Guard和\#includes，之后，我们得到了我们类的定义：
 
 ```c++
 #ifndef LLVM_EXECUTIONENGINE_ORC_KALEIDOSCOPEJIT_H
@@ -132,7 +133,7 @@ Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
 
 现在我们来看第一个JIT API方法：addModule。此方法负责将IR添加到JIT并使其可供执行。在我们的JIT的这个初始实现中，我们将通过将模块添加到CompileLayer来使我们的模块“可供执行”，该CompileLayer将把模块存储在主JITDylib中。此过程将在JITDylib中为模块中的每个定义创建新的符号表条目，并将模块的编译推迟到查找其任何定义之后。请注意，这不是懒惰编译：只需引用一个定义，即使它从未使用过，也足以触发编译。在后面的章节中，我们将教我们的JIT将函数的编译推迟到它们被实际调用的时候。要添加我们的模块，我们必须首先将它包装在一个ThreadSafeModule实例中，该实例以线程友好的方式管理模块的LLVMContext(我们的CTX成员)的生存期。在我们的示例中，所有模块都将共享CTX成员，该成员将在JIT期间存在。一旦我们在后面的章节中切换到并发编译，我们将为每个模块使用一个新的上下文。
 
-最后一个方法是`lookup`，它允许我们根据符号名称查找添加到JIT的函数和变量定义的地址。如上所述，查找将隐式触发尚未编译的任何符号的编译。我们的查找方法调用ExecutionSession::Lookup，传入要搜索的dylib列表(在本例中只是主dylib)和要搜索的符号名称，但有一点不同：我们必须先*压榨机*我们要搜索的符号的名称。ORC JIT组件像静电编译器和链接器一样在内部使用损坏的符号，而不是使用纯IR符号名称。这使得JIT代码可以轻松地与应用程序或共享库中的预编译代码进行互操作。损坏的类型将取决于DataLayout，而DataLayout又取决于目标平台。为了允许我们保持可移植性并基于未损坏的名称进行搜索，我们只需使用我们的“Mangle`”成员函数对象重新生成此损坏。
+最后一个方法是`lookup`，它允许我们根据符号名称查找添加到JIT的函数和变量定义的地址。如上所述，查找将隐式触发尚未编译的任何符号的编译。我们的查找方法调用ExecutionSession::Lookup，传入要搜索的dylib列表(在本例中只是主dylib)和要搜索的符号名称，但有一点不同：我们必须先*压榨机*我们要搜索的符号的名称。ORC JIT组件像静电编译器和链接器一样在内部使用损坏的符号，而不是使用纯IR符号名称。这使得JIT代码可以轻松地与应用程序或共享库中的预编译代码进行互操作。损坏的类型将取决于DataLayout，而DataLayout又取决于目标平台。为了允许我们保持可移植性并基于未损坏的名称进行搜索，我们只需使用我们的`Mangle`成员函数对象重新生成此损坏。
 
 这将我们带到构建JIT的第1章的末尾。现在，您已经有了一个基本但功能齐全的JIT堆栈，您可以使用它来获取LLVM IR，并使其在JIT流程的上下文中可执行。在下一章中，我们将研究如何扩展这种JIT来生成更高质量的代码，并在此过程中更深入地研究ORC层的概念。
 
