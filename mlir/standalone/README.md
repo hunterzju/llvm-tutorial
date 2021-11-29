@@ -16,3 +16,6 @@ cmake --build . --target mlir-doc
 ```
 **Note**: Make sure to pass `-DLLVM_INSTALL_UTILS=ON` when building LLVM with CMake in order to install `FileCheck` to the chosen installation prefix.
 
+说明： 
+* `$BUILD_DIR`是llvm项目的编译路径，比如：${YOUR_GIT_CLONE_PATH}/llvm-project/build/
+* `$PREFIX`是llvm安装路径，如果在编译安装llvm时通过cmake的`cmake_install_prefix`指定安装路径的话，就是该路径；否则为默认值，一般是`/usr/local/`.
