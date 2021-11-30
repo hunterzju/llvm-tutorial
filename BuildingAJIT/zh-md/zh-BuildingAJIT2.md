@@ -17,7 +17,7 @@
 ## 使用IRTransformLayer优化模块
 * * *
 
-在\“使用LLVM实现语言\”教程系列的[第4章](LangImpl04.html)中，介绍了llvm*FunctionPassManager*作为优化LLVM IR的一种方法。感兴趣的读者可能会阅读该章以获取详细信息，但简而言之：为了优化模块，我们创建一个llvm：：FunctionPassManager实例，使用一组优化对其进行配置，然后在模块上运行PassManager以将其变异为(希望)更优化但语义等价的形式。在最初的教程系列中，FunctionPassManager是在KaleidoscopeJIT之外创建的，模块在添加到它之前进行了优化。在本章中，我们将把优化作为JIT的一个阶段。目前，这将为我们提供学习更多关于ORC层的动力，但从长远来看，使优化成为我们JIT的一部分将产生一个重要的好处：当我们开始懒惰地编译代码时(即，将每个函数的编译推迟到它第一次运行时)，由我们的JIT管理的优化也将允许我们懒惰地进行优化，而不必预先进行所有的优化。
+在\“使用LLVM实现语言\”教程系列的[第4章](LangImpl04.html)中，介绍了llvm*FunctionPassManager*作为优化LLVM IR的一种方法。感兴趣的读者可能会阅读该章以获取详细信息，但简而言之：为了优化模块，我们创建一个llvm::FunctionPassManager实例，使用一组优化对其进行配置，然后在模块上运行PassManager以将其变异为(希望)更优化但语义等价的形式。在最初的教程系列中，FunctionPassManager是在KaleidoscopeJIT之外创建的，模块在添加到它之前进行了优化。在本章中，我们将把优化作为JIT的一个阶段。目前，这将为我们提供学习更多关于ORC层的动力，但从长远来看，使优化成为我们JIT的一部分将产生一个重要的好处：当我们开始懒惰地编译代码时(即，将每个函数的编译推迟到它第一次运行时)，由我们的JIT管理的优化也将允许我们懒惰地进行优化，而不必预先进行所有的优化。
 
 为了给我们的JIT增加优化支持，我们将第一章中的KaleidoscopeJIT放在上面，组成一个ORC*IRTransformLayer*。下面我们将更详细地介绍IRTransformLayer的工作原理，但接口很简单：该层的构造函数引用执行会话和下面的层(与所有层一样)，外加一个*IR优化函数*，它将应用于通过addModule添加的每个模块：
 
@@ -57,7 +57,7 @@ return cantFail(OptimizeLayer.addModule(std::move(M),
 ```
 
 接下来，我们需要更新addModule方法以替换对
-`CompileLayer：：add`，改为调用`OptimizeLayer：：add`。
+`CompileLayer::add`，改为调用`OptimizeLayer::add`。
 
 ```c++
 static Expected<ThreadSafeModule>
@@ -132,7 +132,7 @@ void IRTransformLayer::emit(MaterializationResponsibility R,
 }
 ```
 
-这是来自`llvm/include/llvm/ExecutionEngine/Orc/IRTransformLayer.h`和`llvm/lib/ExecutionEngine/Orc/IRTransformLayer.cpp`.的IRTransformLayer的完整定义这个类涉及两个非常简单的工作：(1)通过Transform函数对象运行通过该层发出的每个IR模块，以及(2)实现ORC‘IRLayer`接口(该接口本身符合一般的ORC层概念，详见下文)。该类的大部分内容都很简单：用于转换函数的tyecif、用于初始化成员的构造函数、用于转换函数值的设置器和默认的无操作转换。最重要的方法是`emit`，因为这是我们IRLayer接口的一半。emit方法将我们的转换应用于它调用的每个模块，如果转换成功，则将转换后的模块传递到基本层。如果转换失败，我们的emit函数将调用`MaterializationResponsibility：：failMaterialization`(这个jit客户端可能正在等待其他线程，他们知道自己等待的代码编译失败)，并在退出之前用执行会话记录错误。
+这是来自`llvm/include/llvm/ExecutionEngine/Orc/IRTransformLayer.h`和`llvm/lib/ExecutionEngine/Orc/IRTransformLayer.cpp`.的IRTransformLayer的完整定义这个类涉及两个非常简单的工作：(1)通过Transform函数对象运行通过该层发出的每个IR模块，以及(2)实现ORC‘IRLayer`接口(该接口本身符合一般的ORC层概念，详见下文)。该类的大部分内容都很简单：用于转换函数的tyecif、用于初始化成员的构造函数、用于转换函数值的设置器和默认的无操作转换。最重要的方法是`emit`，因为这是我们IRLayer接口的一半。emit方法将我们的转换应用于它调用的每个模块，如果转换成功，则将转换后的模块传递到基本层。如果转换失败，我们的emit函数将调用`MaterializationResponsibility::failMaterialization`(这个jit客户端可能正在等待其他线程，他们知道自己等待的代码编译失败)，并在退出之前用执行会话记录错误。
 
 我们从IRLayer类继承的IRLayer接口的另一半未经修改：
 

@@ -17,7 +17,7 @@ MLIR有许多不同的方言，因此在它们之间有一个统一的[convertin
 
 ## 转换目标
 
-出于我们的目的，我们希望将计算密集型的`toy`运算转换为来自`Affine``Standard`方言的运算组合，以便进一步优化。要开始降低，我们首先定义转换目标：
+出于我们的目的，我们希望将计算密集型的`toy`运算转换为来自`Affine`中`Standard`方言的运算组合，以便进一步优化。要开始降低，我们首先定义转换目标：
 
 ```c++
 void ToyToAffineLoweringPass::runOnFunction() {
@@ -101,7 +101,7 @@ void ToyToAffineLoweringPass::runOnFunction() {
 
 ## 局部下降
 
-一旦定义了模式，我们就可以执行实际的下降。`DialectConversion`框架提供了几种不同的下调模式，但考虑到我们的目的，我们将执行部分下降，因为我们此时不会转换`toy.print`。
+一旦定义了模式，我们就可以执行实际的下降。`DialectConversion`框架提供了几种不同的下降模式，但考虑到我们的目的，我们将执行部分下降，因为我们此时不会转换`toy.print`。
 
 ```c++
 void ToyToAffineLoweringPass::runOnFunction() {
@@ -252,6 +252,6 @@ func @main() {
 }
 ```
 
-在这里，我们可以看到，删除了冗余分配，融合了两个循环嵌套，并删除了一些不必要的`load`操作。您可以构建`toyc-ch5`并亲自试用：`toyc-ch5 test/examples/Toy/CH5/affine-lowering.mlir -emit=mlir -affine`。我们也可以通过添加`-opt`来检查我们的优化。
+在这里，我们可以看到，删除了冗余分配，融合了两个循环嵌套，并删除了一些不必要的`load`操作。您可以构建`toyc-ch5`并亲自试用：`toyc-ch5 test/examples/Toy/CH5/affine-lowering.mlir -emit=mlir-affine`。我们也可以通过添加`-opt`来检查我们的优化。
 
 在这一章中，我们探讨了局部降低的一些方面，目的是进行优化。在[下一章](zh-Ch-6.md)中，我们将继续讨论方言转换，将LLVM作为代码生成的目标。

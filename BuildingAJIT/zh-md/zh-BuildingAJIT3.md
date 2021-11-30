@@ -46,7 +46,7 @@ public:
   using ModuleHandle = decltype(CODLayer)::ModuleHandleT;
 ```
 
-首先，我们需要包括CompileOnDemandLayer.h头，然后向我们的类添加两个新成员：std：：Unique\_ptr\<JITCompileCallbackManager\>和CompileOnDemandLayer。CompileOnDemandLayer使用CompileCallbackManager成员创建每个函数所需的编译回调。
+首先，我们需要包括CompileOnDemandLayer.h头，然后向我们的类添加两个新成员：std::Unique\_ptr\<JITCompileCallbackManager\>和CompileOnDemandLayer。CompileOnDemandLayer使用CompileCallbackManager成员创建每个函数所需的编译回调。
 
 ```c++
 KaleidoscopeJIT()
