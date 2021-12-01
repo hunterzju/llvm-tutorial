@@ -80,6 +80,23 @@ def ConstantOp : Toy_Op<"constant", [NoSideEffect]> {
   let verifier = [{ return ::verify(*this); }];
 }
 
+def TestOp : Toy_Op<"test"> {
+  let summary = "test operation, do nothing";
+  let description = [{
+    The "test" operation do nothing, just for learn the use of ODS.
+  }];
+
+  let arguments = (ins F64Tensor: $val);
+  let results = (outs F64Tensor);
+
+  // TODO: parser/printer是不是必须的
+
+  // TODO: builder作用怎么理解？
+  let builders = [
+    OpBuilder<(ins "Value":$val)>
+  ];
+}
+
 def AddOp : Toy_Op<"add"> {
   let summary = "element-wise addition operation";
   let description = [{
