@@ -20,7 +20,7 @@ Values
 Passes
     Traits
     Interfaces
-Dialects
+实现-Dialects
     Operations
         a unique string 
         results
@@ -30,6 +30,9 @@ Dialects
         enclosed regions
     Types 
     Attributes
+        Attribute Value Aliases
+        Dialect Attribute Values
+        Builtin Attribute Values
 
 MLIR TABGEN机制
 MLIR ODS框架
