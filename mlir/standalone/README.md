@@ -16,6 +16,6 @@ cmake --build . --target mlir-doc
 ```
 **Note**: Make sure to pass `-DLLVM_INSTALL_UTILS=ON` when building LLVM with CMake in order to install `FileCheck` to the chosen installation prefix.
 
-ËµÃ÷£º 
-* `$BUILD_DIR`ÊÇllvmÏîÄ¿µÄ±àÒëÂ·¾¶£¬±ÈÈç£º${YOUR_GIT_CLONE_PATH}/llvm-project/build/
-* `$PREFIX`ÊÇllvm°²×°Â·¾¶£¬Èç¹ûÔÚ±àÒë°²×°llvmÊ±Í¨¹ıcmakeµÄ`cmake_install_prefix`Ö¸¶¨°²×°Â·¾¶µÄ»°£¬¾ÍÊÇ¸ÃÂ·¾¶£»·ñÔòÎªÄ¬ÈÏÖµ£¬Ò»°ãÊÇ`/usr/local/`.
+è¯´æ˜ï¼š 
+* `$BUILD_DIR`æ˜¯llvmé¡¹ç›®çš„ç¼–è¯‘è·¯å¾„ï¼Œæ¯”å¦‚ï¼š${YOUR_GIT_CLONE_PATH}/llvm-project/build/
+* `$PREFIX`æ˜¯llvmå®‰è£…è·¯å¾„ï¼Œå¦‚æœåœ¨ç¼–è¯‘å®‰è£…llvmæ—¶é€šè¿‡cmakeçš„`cmake_install_prefix`æŒ‡å®šå®‰è£…è·¯å¾„çš„è¯ï¼Œå°±æ˜¯è¯¥è·¯å¾„ï¼›å¦åˆ™ä¸ºé»˜è®¤å€¼ï¼Œä¸€èˆ¬æ˜¯`/usr/local/`.

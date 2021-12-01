@@ -1,0 +1,56 @@
+{
+    "root": {
+        "data": {
+            "id": "cg2cfg1mvtk0",
+            "created": 1638197164770,
+            "text": "MLIR"
+        },
+        "children": [
+            {
+                "data": {
+                    "id": "cg2cg42fqe00",
+                    "created": 1638197217061,
+                    "text": "基本结构：图数据 "
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "cg2cgziz1nk0",
+                            "created": 1638197285541,
+                            "text": "节点：Operations"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "cg2ch2hja5k0",
+                            "created": 1638197291985,
+                            "text": "边：Values"
+                        },
+                        "children": [
+                            {
+                                "data": {
+                                    "id": "cg2cjmvk4200",
+                                    "created": 1638197493097,
+                                    "text": "Type System"
+                                },
+                                "children": []
+                            },
+                            {
+                                "data": {
+                                    "id": "cg2ckm7l1cw0",
+                                    "created": 1638197570011,
+                                    "text": "Opreation Res| Block Argument"
+                                },
+                                "children": []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "template": "default",
+    "theme": "fresh-green",
+    "version": "1.4.43"
+}
