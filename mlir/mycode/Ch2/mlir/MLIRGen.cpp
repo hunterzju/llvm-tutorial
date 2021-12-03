@@ -196,6 +196,8 @@ private:
     // Derive the operation name from the binary operator. At the moment we only
     // support '+' and '*'.
     switch (binop.getOp()) {
+    case '|':
+      return builder.create<OrOp>(location, lhs, rhs);
     case '+':
       return builder.create<AddOp>(location, lhs, rhs);
     case '*':

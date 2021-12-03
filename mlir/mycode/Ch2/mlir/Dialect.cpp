@@ -167,6 +167,14 @@ void AddOp::build(mlir::OpBuilder &builder, mlir::OperationState &state,
 }
 
 //===----------------------------------------------------------------------===//
+// OrOp
+void OrOp::build(mlir::OpBuilder &builder, mlir::OperationState &state,
+                 mlir::Value lhs, mlir::Value rhs) {
+  state.addTypes(UnrankedTensorType::get(builder.getF64Type()));
+  state.addOperands({lhs, rhs});
+}
+
+//===----------------------------------------------------------------------===//
 // GenericCallOp
 
 void GenericCallOp::build(mlir::OpBuilder &builder, mlir::OperationState &state,

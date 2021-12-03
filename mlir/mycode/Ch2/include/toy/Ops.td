@@ -80,20 +80,23 @@ def ConstantOp : Toy_Op<"constant", [NoSideEffect]> {
   let verifier = [{ return ::verify(*this); }];
 }
 
-def TestOp : Toy_Op<"test"> {
-  let summary = "test operation, do nothing";
+def OrOp : Toy_Op<"Or"> {
+  let summary = "element-wise logic Or operation";
   let description = [{
-    The "test" operation do nothing, just for learn the use of ODS.
+    The "or" operation performs element-wise logic or between two tensors.
+    The shapes of the tensor operands are expected to match.
   }];
 
-  let arguments = (ins F64Tensor: $val);
+  let arguments = (ins F64Tensor: $lhs, F64Tensor:$rhs);
   let results = (outs F64Tensor);
 
-  // TODO: parser/printer是不是必须的
+  // TODO: parser/printer是如何处理的
+  let parser = [{ return ::parseBinaryOp(parser, result); }];
+  let printer = [{ return ::printBinaryOp(p, *this); }];
 
   // TODO: builder作用怎么理解？
   let builders = [
-    OpBuilder<(ins "Value":$val)>
+    OpBuilder<(ins "Value":$lhs, ins "Value": $rhs)>
   ];
 }
 
