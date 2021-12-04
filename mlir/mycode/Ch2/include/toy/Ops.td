@@ -94,9 +94,9 @@ def OrOp : Toy_Op<"Or"> {
   let parser = [{ return ::parseBinaryOp(parser, result); }];
   let printer = [{ return ::printBinaryOp(p, *this); }];
 
-  // TODO: builder作用怎么理解？
+  // 构建一个MLIR Operation节点
   let builders = [
-    OpBuilder<(ins "Value":$lhs, ins "Value": $rhs)>
+    OpBuilder<(ins "Value":$lhs, "Value":$rhs)>
   ];
 }
 
@@ -188,7 +188,7 @@ def PrintOp : Toy_Op<"print"> {
   // let printer = [{ return ::print(printer, *this); }];
   // let parser = [{ return ::parse$cppClass(parser, result); }];
 
-  let assemblyFormat = "$input attr-dict `:` type($input)";
+  let assemblyFormat = "$input `{` attr-dict `}` `:` type($input)";
 }
 
 def ReshapeOp : Toy_Op<"reshape"> {
