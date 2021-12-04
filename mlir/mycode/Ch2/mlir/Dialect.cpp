@@ -85,6 +85,9 @@ static void printBinaryOp(mlir::OpAsmPrinter &printer, mlir::Operation *op) {
 
   // Otherwise, print a functional type.
   printer.printFunctionalType(op->getOperandTypes(), op->getResultTypes());
+
+  // print loc
+  printer << " " << op->getLoc();
 }
 
 //===----------------------------------------------------------------------===//
