@@ -227,6 +227,15 @@ void AddOp::build(mlir::OpBuilder &builder, mlir::OperationState &state,
 void AddOp::inferShapes() { getResult().setType(getOperand(0).getType()); }
 
 //===----------------------------------------------------------------------===//
+// OrOp
+void OrOp::build(mlir::OpBuilder &builder, mlir::OperationState &state,
+                 mlir::Value lhs, mlir::Value rhs) {
+  state.addTypes(UnrankedTensorType::get(builder.getF64Type()));
+  state.addOperands({lhs, rhs});
+}
+
+void OrOp::inferShapes() { getResult().setType(getOperand(0).getType()); }
+
 // CastOp
 
 /// Infer the output shape of the CastOp, this is required by the shape
