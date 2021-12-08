@@ -87,7 +87,7 @@ std::unique_ptr<toy::ModuleAST> parseInputFile(llvm::StringRef filename) {
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> fileOrErr =
       llvm::MemoryBuffer::getFileOrSTDIN(filename);
   if (std::error_code ec = fileOrErr.getError()) {
-    llvm::errs() << "Could not open input file: " << ec.message() << "\n";
+    llvm::errs() << "Could not open input file: " << filename << ec.message() << "\n";
     return nullptr;
   }
   auto buffer = fileOrErr.get()->getBuffer();
@@ -111,7 +111,7 @@ int loadMLIR(mlir::MLIRContext &context, mlir::OwningModuleRef &module) {
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> fileOrErr =
       llvm::MemoryBuffer::getFileOrSTDIN(inputFilename);
   if (std::error_code EC = fileOrErr.getError()) {
-    llvm::errs() << "Could not open input file: " << EC.message() << "\n";
+    llvm::errs() << "Could not open input file: " << inputFilename << ":" << EC.message() << "\n";
     return -1;
   }
 
