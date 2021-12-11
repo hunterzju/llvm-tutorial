@@ -1,5 +1,5 @@
 #! https://zhuanlan.zhihu.com/p/441237921
-# mlir-toy教程实践
+# MLIR-Toy-实践-1-添加Op
 
 向toyDialect中添加新的op，添加一个OrOp，支持按照Tensor元素执行或操作。
 
@@ -57,6 +57,7 @@ MLIR是一种图类型的IR表示，核心是节点Node和边Edge。在MLIR中�
 ![Image](https://pic4.zhimg.com/80/v2-d34a295d586edd88046f7fb5699e1d20.png)
 
 MLIR提供了一套基于tablegen的Op实现框架[`ODS`](https://mlir.llvm.org/docs/OpDefinitions/)。由于MLIR支持各种自定义的Dialect，如果各种Dialect的构造器和参数等内容缺乏一些共识，会导致碎片化非常严重，Dialect转换成本会很高。采用表驱动（tablegen）的方式定义Dialect的核心内容，自动化生成接口代码可以减少工作量，同时达到一定程度“标准化”的效果。
+
 ![Image](https://pic4.zhimg.com/80/v2-3d68d4503884d88497d35c7a6e61867f.png)
 
 `ODS`框架中提供了一套自己的语法来定义`Dialect`和`Op`，可以通过tablegen生成对应类的C++代码。定义OP主要需要定义的内容包括`arguments`、`results`、`verifier`、`builders`、`doc`等。参考`AddOp`的实现，添加`OrOp`操作也很简单：
@@ -96,4 +97,28 @@ cmake --build . --target toyc-ch2
 ./bin/toyc-ch2 ../../testcode/Ch2/ast.toy --emit=mlir
 ```
 
-**说明**:AST解析支持了减法操作，但是目前toy对应的MLIR Op中并没有定义减法Op，感兴趣可以把支持减法当作练习。
+## AST转换为MLIR
+toy文件通过lexer和parser转换为AST后，需要转换MLIR表示，转换过程在`mlir/mycode/Ch2/mlir/MLIRGen.cpp`中实现。
+
+![](./imgs/2021-12-04-21-35-59.png)
+
+该文件中定义了针对不同AST节点的`mlirGen`函数，为不同的AST node建立对应的MLIR Operation。
+
+## 将Op添加到Dialect中
+最终生成的Op在Dialect初始化阶段将Op注册到方言中：
+
+![](./imgs/2021-12-05-10-49-21.png)
+
+具体实现代码如下：
+```
+void ToyDialect::initialize() {
+  addOperations<
+#define GET_OP_LIST
+#include "toy/Ops.cpp.inc"
+      >();
+}
+```
+这里将ODS生成的Op添加到Dialect中。
+
+## Tips
+* AST解析支持了减法操作，但是目前toy对应的MLIR Op中并没有定义减法Op，感兴趣可以把支持减法当作练习。
