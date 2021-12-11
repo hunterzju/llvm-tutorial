@@ -33,6 +33,8 @@
 
 .vscode
 .gdb_history
+
 build/
 sourceTrail
 *.km
+
