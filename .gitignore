@@ -37,8 +37,4 @@
 build/
 sourceTrail
 *.km
-<<<<<<< HEAD
-
-=======
 *.drawio
->>>>>>> baf7dd8 (docs(mlir): add mlir OrOp conversion doc)
